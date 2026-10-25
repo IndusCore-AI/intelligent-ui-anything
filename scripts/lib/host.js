@@ -20,7 +20,9 @@ function detect(env = process.env, platform = process.platform) {
     try { wsl = /microsoft/i.test(readFileSync('/proc/version', 'utf8')); } catch { /* not linux proper */ }
   }
   const display = platform === 'darwin' || platform === 'win32' || wsl || has('DISPLAY') || has('WAYLAND_DISPLAY');
-  return { agent, remote, sandboxed, display, platform, wsl, entry: env.CLAUDE_CODE_ENTRYPOINT || '' };
+  // Nobody can press Send in an unattended run: claude -p sets CLAUDE_CODE_SESSION_ATTENDED=0 and an sdk entrypoint (measured).
+  const attended = !(env.CLAUDE_CODE_SESSION_ATTENDED === '0' || /^sdk/.test(env.CLAUDE_CODE_ENTRYPOINT || ''));
+  return { agent, remote, sandboxed, display, platform, wsl, attended, entry: env.CLAUDE_CODE_ENTRYPOINT || '' };
 }
 
 // auto: SSH -> serve on localhost; Codex sandbox -> path (measured: open fails inside seatbelt);

@@ -76,10 +76,12 @@ Write the JSON to a file (or pipe it to `-`), then run one command. Read the lin
 | --- | --- | --- |
 | Claude Code with an Artifact tool | `node <skill>/scripts/render page.json --target artifact` | publish the printed file with the Artifact tool |
 | Any terminal agent with no Artifact tool (Claude Code on an API key, Bedrock, Vertex, `-p`; Codex; Antigravity; Cursor's terminal) | `node <skill>/scripts/render page.json` | it opens the browser, or prints the path or a localhost URL; the user's pick comes back by the Copy button |
-| An interactive session, a page with a pick, and a way to run a command in the background | `node <skill>/scripts/render page.json --serve --wait` in the background (Claude Code: `run_in_background`) | when the user presses Send the command exits printing `decision: <the user's line>` |
+| An interactive session outside a sandbox, a page with a pick, and a way to run a command in the background | `node <skill>/scripts/render page.json --serve --wait` in the background (Claude Code: `run_in_background`) | when the user presses Send the command exits printing `decision: <the user's line>`; in a sandbox that blocks local servers (Codex) it falls back to the page and its Copy button by itself |
 | Re-rendering a `track` page as steps finish | the same command and `id`, with updated statuses | the open page reloads itself; set `"live": false` in `data` on the last render |
 
-Never run `--wait` in the foreground, and never in a non-interactive run (`claude -p`, `codex exec`, CI): nobody can click there, and the command blocks until its timeout.
+Never run `--wait` in the foreground, and never in a non-interactive run (`claude -p`, `codex exec`, CI): nobody can click there. The script skips the wait itself when it can tell (`claude -p` marks itself unattended).
+
+Codex: the page needs a writable sandbox. `codex exec` defaults to read-only, where nothing can be written; ask the user to rerun with `--sandbox workspace-write` (Codex's interactive default), and do not try to work around it.
 
 `--target auto` (the default) picks the output from the environment: over SSH it serves on this machine's 127.0.0.1 and prints the URL and an `ssh -L` line; inside Codex's sandbox (`CODEX_SANDBOX` set) it prints the path, because opening a browser is blocked there; on a desktop it opens the default browser (`open`, `xdg-open`, or `start`); otherwise it prints the path. The page path is always printed. `references/hosts.md` has what was measured in each host.
 
@@ -87,7 +89,8 @@ Never run `--wait` in the foreground, and never in a non-interactive run (`claud
 
 - `check: pass` and `opened: yes`: tell the user in one line what the page shows and what to do on it (for example "pick a model and press Copy for the agent"). Do not repeat the page's content in the chat.
 - `check: FAIL`: the page was written but not opened. The lines under it name each problem; fix your JSON (usually wording or a number) and render again. Never pass `--no-check` to get past a failure.
-- `opened: no` or `next: give the user this path`: give the user the path or URL as a clickable line. In Codex you may rerun the printed `open <path>` with escalated permissions if the harness allows it.
+- `opened: no` or `next: give the user this path`: give the user the path or URL as a clickable line. In Codex you may rerun `open <path>` with escalated permissions if the harness allows it.
+- `served: skipped` or `served: no`: there is no local server here; the page works from the file and the pick comes back by Copy.
 - `decision: <line>`: treat that line exactly as if the user had typed it, and carry on.
 - No `decision:` line (the user copies instead): the user pastes a line such as `Use the FLUX.1 [dev] checkpoint`. Treat it the same way.
 - `render: the input needs fixing`: the lines name the JSON path to fix.

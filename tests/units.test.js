@@ -74,6 +74,8 @@ test('host: detection order and the auto choice', () => {
   assert.equal(host.choose(host.detect({}, 'linux')).target, 'path');
   assert.equal(host.choose(host.detect({ WAYLAND_DISPLAY: 'wayland-0' }, 'linux')).target, 'browser');
   assert.equal(host.detect({ GEMINI_CLI: '1' }, 'darwin').agent, 'gemini-cli');
+  assert.equal(host.detect({ CLAUDECODE: '1', CLAUDE_CODE_ENTRYPOINT: 'sdk-cli', CLAUDE_CODE_SESSION_ATTENDED: '0' }, 'darwin').attended, false);
+  assert.equal(host.detect({ CLAUDECODE: '1', CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_CODE_SESSION_ATTENDED: '1' }, 'darwin').attended, true);
 });
 
 test('shapes: every fixture builds', () => {

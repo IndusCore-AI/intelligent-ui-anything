@@ -129,6 +129,17 @@ async function main(argv) {
   }
 
   const h = host.detect();
+  if (opts.target === 'serve' && h.sandboxed) {
+    // Measured in Codex CLI 0.164: listen on 127.0.0.1 fails with EPERM inside the seatbelt sandbox.
+    say('served', 'skipped: the Codex sandbox blocks local servers. The page has a Copy button instead.');
+    opts.target = 'auto';
+    opts.wait = false;
+  }
+  if (opts.wait && !h.attended) {
+    say('waiting', 'skipped: this run is unattended, so nobody can press Send. The page has a Copy button instead.');
+    opts.wait = false;
+    if (opts.target === 'serve' && !h.remote) opts.target = 'auto';
+  }
   const auto = host.choose(h);
   const target = opts.target === 'auto' ? auto.target : opts.target;
   const live = /<meta name="iua-live" content="\d+">/.test(html);
@@ -151,6 +162,18 @@ async function main(argv) {
     return 0;
   }
 
+  // When no server can run, the page still works by file: open it where possible, else print the path.
+  async function fallBack(why) {
+    say('served', `no, ${why}. The page has a Copy button instead.`);
+    if (h.display && !h.remote && !h.sandboxed && shouldOpen) {
+      const r = await host.openInBrowser(file, h);
+      say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`);
+      if (r.ok) return 0;
+    }
+    say('next', `give the user this path to open in a browser: ${file}`);
+    return 0;
+  }
+
   // serve: the pick can come straight back to this session.
   const decisionFile = `${file}.decision.json`;
   rmSync(decisionFile, { force: true });
@@ -168,11 +191,12 @@ async function main(argv) {
         if (openIt) { const r = await host.openInBrowser(s.url, h); say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`); }
         say('waiting', `for the user's pick (up to ${opts.timeout}s); it also lands in ${decisionFile}`);
         timer = setTimeout(() => res(null), opts.timeout * 1000);
-      }, (e) => { console.error(`render: could not start the server: ${e.message}`); res(null); });
+      }, (e) => { res({ failed: e.message }); });
     });
     const d = await done;
     clearTimeout(timer);
     if (srv) { srv.close(); if (srv.closeAllConnections) srv.closeAllConnections(); }
+    if (d && d.failed) return fallBack(`could not start a local server (${d.failed})`);
     if (!d) { say('decision', 'none (timed out). Ask the user, or tell them to use the Copy button.'); return 4; }
     say('decision', d.prompt.replace(/\n/g, '\n  '));
     return 0;
@@ -182,7 +206,7 @@ async function main(argv) {
   const child = spawn(process.execPath, [join(__dirname, 'serve'), file, '--ready', ready, '--idle', String(opts.timeout), '--decision', decisionFile, '--no-open'], { detached: true, stdio: 'ignore' });
   child.unref();
   const info = await waitForFile(ready, 5000);
-  if (!info) { say('served', 'no, the server did not start'); say('next', `give the user this path: ${file}`); return 0; }
+  if (!info) return fallBack('the local server did not start');
   say('url', info.url);
   if (h.remote) say('tunnel', `on your own computer run: ssh -L ${info.port}:127.0.0.1:${info.port} ${hostname()} then open the url`);
   if (openIt) { const r = await host.openInBrowser(info.url, h); say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`); }
