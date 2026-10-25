@@ -68,14 +68,18 @@ Rules that keep the page honest and the check green:
 
 ## Step 3: render it where the user is
 
+Build the page from what you already know: the page should be open within a minute. Do not re-run checks or research to fill it unless the user asked; a fact you do not have is `null`, or an item that says it is unverified.
+
 Write the JSON to a file (or pipe it to `-`), then run one command. Read the lines it prints; they say what happened and what to do next.
 
 | You are in | Run | Then |
 | --- | --- | --- |
 | Claude Code with an Artifact tool | `node <skill>/scripts/render page.json --target artifact` | publish the printed file with the Artifact tool |
-| Any terminal agent with no Artifact tool (Claude Code on an API key, Bedrock, Vertex, `-p`; Codex; Antigravity; Cursor's terminal) | `node <skill>/scripts/render page.json` | it opens the browser, or prints the path or a localhost URL |
-| A page with a pick, when you want the answer back without the user typing | `node <skill>/scripts/render page.json --serve --wait` | run it in the background where you can (Claude Code: `run_in_background`); it exits printing `decision: <the user's line>` |
+| Any terminal agent with no Artifact tool (Claude Code on an API key, Bedrock, Vertex, `-p`; Codex; Antigravity; Cursor's terminal) | `node <skill>/scripts/render page.json` | it opens the browser, or prints the path or a localhost URL; the user's pick comes back by the Copy button |
+| An interactive session, a page with a pick, and a way to run a command in the background | `node <skill>/scripts/render page.json --serve --wait` in the background (Claude Code: `run_in_background`) | when the user presses Send the command exits printing `decision: <the user's line>` |
 | Re-rendering a `track` page as steps finish | the same command and `id`, with updated statuses | the open page reloads itself; set `"live": false` in `data` on the last render |
+
+Never run `--wait` in the foreground, and never in a non-interactive run (`claude -p`, `codex exec`, CI): nobody can click there, and the command blocks until its timeout.
 
 `--target auto` (the default) picks the output from the environment: over SSH it serves on this machine's 127.0.0.1 and prints the URL and an `ssh -L` line; inside Codex's sandbox (`CODEX_SANDBOX` set) it prints the path, because opening a browser is blocked there; on a desktop it opens the default browser (`open`, `xdg-open`, or `start`); otherwise it prints the path. The page path is always printed. `references/hosts.md` has what was measured in each host.
 

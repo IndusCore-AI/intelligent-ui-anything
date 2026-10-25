@@ -6,7 +6,7 @@
     "verbatim": true,
     "sections": [
       { "title": "Scope", "body": "This policy covers logs and **backups**.\n\n- Logs\n- Backups" },
-      { "title": "Retention", "body": "Logs are kept for 30 days — then deleted.", "change": "changed", "note": "Was 90 days.", "was": "Logs are kept for 90 days." },
+      { "title": "Retention", "body": "Logs are kept for 30 days \u2014 then deleted.", "change": "changed", "note": "Was 90 days.", "was": "Logs are kept for 90 days." },
       { "title": "Exceptions", "body": "Legal holds pause deletion.", "change": "added", "note": "New in version 2." }
     ]
   }

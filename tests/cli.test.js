@@ -33,7 +33,7 @@ test('render refuses bad input with exit 2 and a page that fails the floor with 
   assert.equal(bad.status, 2);
   assert.match(bad.stderr, /must be one of/);
   const f = JSON.parse(readFileSync(join(__dirname, 'fixtures', 'compare.json'), 'utf8'));
-  f.question = 'Which tool — honestly?';
+  f.question = 'Which tool \u2014 honestly?';
   const fail = run(['-', '--target', 'path'], JSON.stringify(f));
   assert.equal(fail.status, 3);
   assert.match(fail.stdout, /^check: FAIL/m);

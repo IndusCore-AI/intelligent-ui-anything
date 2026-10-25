@@ -32,7 +32,7 @@ test('planted problems fail the rule that guards them', () => {
   const input = fixture('compare');
   const html = renderPage(input, { now }).html;
   const cases = [
-    ['an em dash in the copy', { ...input, question: 'Which one — really?' }, null, /floor 6/],
+    ['an em dash in the copy', { ...input, question: 'Which one \u2014 really?' }, null, /floor 6/],
     ['a number the input never gave', { ...input, summary: 'Alpha is 40 percent faster.' }, null, /floor 5/],
     ['a colour literal', null, html.replace('<span class="tag">', '<span class="tag" style="color: #ff0000">'), /floor 1/],
     ['transition: all', null, html.replace('</style>', '.x { transition: all 1s; }\n</style>'), /floor 2/],
@@ -53,9 +53,14 @@ test('planted problems fail the rule that guards them', () => {
   }
 });
 
+test('the user\'s own data may name the tool and its maker; the page may not add them', () => {
+  const input = { ...fixture('inspect'), subject: 'Review of the intelligent-ui-anything repo at IndusCore' };
+  assert.equal(checkPage(renderPage(input, { now }).html, { data: input }).ok, true);
+});
+
 test('quoted source text may keep its own dashes', () => {
   const input = fixture('explain');
-  assert.ok(input.data.sections[1].body.includes('—'));
+  assert.ok(input.data.sections[1].body.includes('\u2014'));
   assert.equal(checkPage(renderPage(input, { now }).html, { data: input }).ok, true);
   const notVerbatim = { ...input, data: { ...input.data, verbatim: false } };
   assert.equal(checkPage(renderPage(notVerbatim, { now }).html, { data: notVerbatim }).ok, false);

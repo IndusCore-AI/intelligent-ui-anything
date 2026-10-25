@@ -5,7 +5,7 @@ const { parseColor, contrast, resolve } = require('./color');
 const { numbersIn, normNum, fmtNumber, NUM_RE } = require('./text');
 
 const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
-const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', mdash: '—', ndash: '–', hellip: '...' };
+const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', mdash: '\u2014', ndash: '\u2013', hellip: '...' };
 const decode = (s) => s.replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, e) => {
   if (e[0] === '#') return String.fromCodePoint(e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10));
   return ENT[e.toLowerCase()] != null ? ENT[e.toLowerCase()] : m;
@@ -186,8 +186,8 @@ function check(html, { data = null, locale = 'en-US' } = {}) {
   // 6. No em or en dashes outside quoted source text.
   {
     const p = [];
-    for (const { t, f } of visible) if (!f.verbatim && /[–—]/.test(t)) p.push(`dash in "${t.trim().slice(0, 60)}"`);
-    for (const r of rules) for (const d of r.decls) if (d.prop === 'content' && /[–—]|\\201[34]/.test(d.value)) p.push(`${r.selector}: dash in content`);
+    for (const { t, f } of visible) if (!f.verbatim && /[\u2013\u2014]/.test(t)) p.push(`dash in "${t.trim().slice(0, 60)}"`);
+    for (const r of rules) for (const d of r.decls) if (d.prop === 'content' && /[\u2013\u2014]|\\201[34]/.test(d.value)) p.push(`${r.selector}: dash in content`);
     add(6, 'No em or en dashes in the page copy', p);
   }
   // 7. Both themes, with the same tokens.
@@ -256,8 +256,14 @@ function check(html, { data = null, locale = 'en-US' } = {}) {
   }
   {
     const p = [];
+    // The template never names the tool or its maker; the user's own data may (a review of this repo, say).
     const all = visible.map((x) => x.t).join(' ');
-    if (/intelligent-ui-anything|induscore/i.test(all)) p.push('the page names the tool or its maker');
+    const given = data ? JSON.stringify(data).toLowerCase() : '';
+    for (const name of ['intelligent-ui-anything', 'induscore']) {
+      const onPage = (all.toLowerCase().match(new RegExp(name, 'g')) || []).length;
+      const inInput = (given.match(new RegExp(name, 'g')) || []).length;
+      if (onPage > inInput) p.push(`the page names "${name}" more often than the input does`);
+    }
     if (/[?&](utm_[a-z]+|ref)=/i.test(html)) p.push('a tracking parameter in a link');
     if (/<meta[^>]+name="generator"/i.test(html)) p.push('a generator meta tag');
     add('S2', 'No credit, no tracking', p);
