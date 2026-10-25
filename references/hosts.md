@@ -7,9 +7,9 @@ The agent knows one thing the script cannot see: whether it has an Artifact tool
 
 | Situation | How it is detected | Output | Status |
 | --- | --- | --- | --- |
-| Claude Code, Artifact tool present | the agent sees the tool | `--target artifact`: file written and checked, then published by the agent | documented; publish tested 2026-10-25 (see below) |
-| Claude Code, no Artifact tool (API key, Bedrock, Vertex, Foundry, ZDR, `-p`, `CLAUDE_CODE_DISABLE_ARTIFACT=1`) | `CLAUDECODE=1` | opens the browser | measured: `CLAUDECODE=1`, `CLAUDE_CODE_ENTRYPOINT=cli` set in every shell (Claude Code 2.1.310) |
-| Codex CLI, sandboxed | `CODEX_THREAD_ID`, `CODEX_SESSION_ID` or `CODEX_CI`; `CODEX_SANDBOX` | prints the path | measured, see below |
+| Claude Code, Artifact tool present | the agent sees the tool | `--target artifact`: the page written as a fragment and checked, then published by the agent | published and read back 2026-10-25; not seen rendered in the viewer |
+| Claude Code, no Artifact tool (API key, Bedrock, Vertex, Foundry, ZDR, `-p`, `CLAUDE_CODE_DISABLE_ARTIFACT=1`) | `CLAUDECODE=1` | opens the browser; `--wait` is skipped when the run is unattended | measured in 2.1.310: `CLAUDE_CODE_ENTRYPOINT=cli` and `CLAUDE_CODE_SESSION_ATTENDED=1` interactive, `sdk-cli` and `0` under `-p` |
+| Codex CLI, sandboxed | `CODEX_THREAD_ID`, `CODEX_SESSION_ID` or `CODEX_CI`; `CODEX_SANDBOX` | prints the path; no server | measured, see below; `codex exec` needs `--sandbox workspace-write` |
 | SSH session | `SSH_CONNECTION`, `SSH_CLIENT` or `SSH_TTY` | serves on 127.0.0.1, prints the URL and an `ssh -L` line | measured in Linux (Docker) |
 | Linux desktop | `DISPLAY` or `WAYLAND_DISPLAY` | `xdg-open` | measured in Linux (Docker): failure paths only, no browser there |
 | Linux without a display | neither set | prints the path | measured in Linux (Docker) |
@@ -42,6 +42,18 @@ CODEX_SESSION_ID=<uuid>   CODEX_THREAD_ID=<same uuid>   CODEX_TOOL_CALL_ID=<id> 
 
 Codex launched from inside Claude Code inherited `CLAUDECODE=1` as well, so the script checks the Codex markers first.
 
+With the skill in `.agents/skills/` of a test project, three natural-language prompts:
+
+| Prompt | Sandbox | Result |
+| --- | --- | --- |
+| "Show them to me as a UI I can sort, and let me pick which model to use" (a CSV of ten models) | default (`:read-only`) | no page: nothing can be written; Codex read the renderer and said so |
+| the same | `workspace-write` | page checked and written in 18 s, path printed; it asked for `--serve --wait`, and the server failed with `listen EPERM` (render now skips serving in the sandbox) |
+| "one page of what changed, what is risky and what is undecided" (three session logs) | `workspace-write` | page checked and written in 40 s, browser blocked, path printed |
+| "make me a chart of their orbital periods where each planet wears its element's colour" | `workspace-write` | Codex's own bundled `visualize` skill answered instead |
+| the same, starting "Use the intelligent-ui-anything skill" | `workspace-write` | page checked and written in 18 s, each bar in its element's class, path printed |
+
+The Codex app has an inline surface for HTML: its bundled `visualize` skill writes an HTML fragment to a task-owned folder and puts a `visualize{"path": "<absolute path>"}` line in the reply. This skill does not use it yet (not verified in the desktop app).
+
 **Linux, Docker `node:22-slim` (Node 22.23.4, aarch64, Ubuntu host engine 29.5.2):**
 
 | Case | Result |
@@ -62,3 +74,5 @@ Over SSH the server is reachable only through a tunnel the user opens. VS Code R
 ## Artifacts in Claude Code
 
 The Artifact tool exists only on Pro, Max, Team and Enterprise plans with `/login`, and not with an API key, gateway token, Bedrock, Vertex, Foundry, CMEK, HIPAA or ZDR, in `-p` mode, the Agent SDK or when `CLAUDE_CODE_DISABLE_ARTIFACT=1` is set (code.claude.com/docs/en/artifacts, read 2026-10-25). An artifact page may only fetch its own origin, so it cannot reach the local decision server: inside an artifact, the pick comes back by the Copy button.
+
+The tool wraps every published file in its own document (a charset and viewport meta, a small reset, safe-area padding on `:root`), so `--target artifact` writes the page as a fragment: `<title>`, a `claude:viewport-fit-sides` meta, the style, the page and the script. The viewer sets `data-theme` on the root, which the theme tokens read; the page's own theme switch is left out there. Published once (the ComfyUI example) and read back: the service stored the fragment inside its skeleton as expected. The artifact contract says the Copy button works when `navigator.clipboard.writeText` runs in the click handler and that some app views refuse it, which is the case the page handles by selecting the line instead; this was not clicked in the viewer.

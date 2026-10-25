@@ -1,0 +1,22 @@
+[
+  {"query": "I found these ComfyUI checkpoints: FLUX.1 dev (23.8 GB, non-commercial), SDXL base (6.9 GB, OpenRAIL++), Z-Image-Turbo (12.3 GB, Apache 2.0), Qwen-Image (40.9 GB, Apache 2.0). Put them in something I can sort and let me pick the one to load.", "should_trigger": true},
+  {"query": "We have three ways to do the Postgres 14 to 16 upgrade: pg_upgrade in place (about 10 min downtime), logical replication to a new cluster (near zero downtime, more setup), or dump and restore (about 2 hours downtime). Lay them out so I can choose one.", "should_trigger": true},
+  {"query": "Here is our CI matrix result: node 18 linux pass, node 18 windows fail, node 20 linux pass, node 20 windows pass, node 22 linux fail, node 22 windows fail. Make a page for it so I can see which cells failed.", "should_trigger": true},
+  {"query": "I ran four agent sessions today on the billing service: added retries to the webhook handler, renamed the invoice table, left the refund cron disabled, and nobody decided whether to keep the old API version. Show me one page of what changed, what's risky and what still needs my decision.", "should_trigger": true},
+  {"query": "Below is our data retention policy v2. Make it navigable with a contents list and show me what changed from v1, where logs were kept 90 days and there was no legal hold section.\n\nScope: logs and backups.\nRetention: logs are kept 30 days, then deleted.\nLegal holds: a legal hold pauses deletion.", "should_trigger": true},
+  {"query": "show this as a UI instead of a wall of text: Redis 7 (in-memory, BSD), Valkey 8 (in-memory, BSD fork), KeyDB 6 (multithreaded, BSD), Dragonfly 1.2 (multithreaded, BSL)", "should_trigger": true},
+  {"query": "compare these vector databases in an interactive table I can sort: pgvector (Postgres extension, self-hosted, free), Qdrant (Rust, self-hosted or cloud, Apache 2.0), Pinecone (managed only, paid), Weaviate (Go, self-hosted or cloud, BSD), Chroma (Python, embedded, Apache 2.0)", "should_trigger": true},
+  {"query": "I'm about to run the 7-step database migration we planned. Keep a checklist page updated as you go so I can watch the progress from my browser.", "should_trigger": true},
+  {"query": "give me an HTML report of these dependency upgrades with the risky ones flagged: react-router 6.28 to 7.1 (breaking, 23 files), zod 3.23 to 3.24 (minor), vite 5 to 6 (breaking config), eslint 8 to 9 (flat config, breaking)", "should_trigger": true},
+  {"query": "chart my five elements reading so each element shows in its own colour: wood 2, fire 3, earth 1, metal 1, water 1", "should_trigger": true},
+  {"query": "Add a sortable data table component to our React dashboard in src/components/DataTable.tsx, using our existing Tailwind tokens.", "should_trigger": false},
+  {"query": "The three pricing cards on our marketing site don't line up on mobile. Fix the CSS in app/pricing/page.tsx.", "should_trigger": false},
+  {"query": "What's the difference between UMAP and t-SNE for visualising embeddings, in a couple of sentences?", "should_trigger": false},
+  {"query": "Write a Python script that reads sales.csv and saves a matplotlib bar chart of revenue by month as revenue.png for our quarterly PDF.", "should_trigger": false},
+  {"query": "Convert docs/README.md into a nicely formatted PDF I can email to the board.", "should_trigger": false},
+  {"query": "Design and build a landing page for our new product launch, with a hero, pricing and a sign-up form, in our Next.js site.", "should_trigger": false},
+  {"query": "Summarise this error in one line: TypeError: Cannot read properties of undefined (reading 'map') at OrderList (OrderList.tsx:42)", "should_trigger": false},
+  {"query": "For a single-user desktop app storing about 10,000 notes, is SQLite or Postgres the better fit? Just tell me which and why in two sentences.", "should_trigger": false},
+  {"query": "Build me a Next.js admin dashboard with charts for our metrics API at /api/metrics, deployable to Vercel.", "should_trigger": false},
+  {"query": "Make a 10-slide deck about our Q3 results for the board meeting.", "should_trigger": false}
+]

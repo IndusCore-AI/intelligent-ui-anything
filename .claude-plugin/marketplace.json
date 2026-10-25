@@ -1,6 +1,10 @@
 {
   "name": "intelligent-ui-anything",
-  "owner": { "name": "IndusCore", "url": "https://induscore.site" },
+  "description": "One skill that turns what an agent produced into a small interactive page and brings the user's pick back.",
+  "owner": {
+    "name": "IndusCore",
+    "url": "https://induscore.site"
+  },
   "plugins": [
     {
       "name": "intelligent-ui-anything",
