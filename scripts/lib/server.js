@@ -50,11 +50,11 @@ function startServer({ page, port = 0, token = randomBytes(18).toString('base64u
       const chunks = [];
       req.on('data', (c) => {
         size += c.length;
-        if (size > MAX_BODY) { send(res, 413, 'text/plain', 'too large\n'); req.destroy(); return; }
-        chunks.push(c);
+        if (size > MAX_BODY * 8) { req.destroy(); return; }
+        if (size <= MAX_BODY) chunks.push(c);
       });
       req.on('end', () => {
-        if (size > MAX_BODY) return;
+        if (size > MAX_BODY) return send(res, 413, 'text/plain', 'too large\n');
         let body;
         try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return send(res, 400, 'text/plain', 'bad json\n'); }
         if (!body || typeof body.prompt !== 'string' || !body.prompt.trim() || body.prompt.length > 8000) return send(res, 400, 'text/plain', 'missing prompt\n');

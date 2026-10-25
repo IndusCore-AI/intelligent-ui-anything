@@ -57,9 +57,19 @@ const norm = (v) => String(v == null ? '' : v).trim().toLowerCase();
 
 // The semantic key for one value in one palette, or null.
 function keyFor(palette, value) {
-  const hits = LOOKUP[norm(value)] || [];
-  const hit = hits.find((h) => h.palette === palette);
-  return hit ? hit.key : null;
+  const find = (v) => { const hit = (LOOKUP[v] || []).find((h) => h.palette === palette); return hit ? hit.key : null; };
+  const v = norm(value);
+  const exact = find(v);
+  if (exact) return exact;
+  // "Water 水", "fire / 火": every word that maps must agree.
+  const keys = [...new Set(v.split(/[\s/,()|:]+/).filter(Boolean).map(find).filter(Boolean))];
+  if (keys.length === 1) return keys[0];
+  // "水星", "火曜日": one element character inside a longer CJK word.
+  if (palette === 'five-elements') {
+    const chars = [...new Set([...v].map((c) => ({ 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water', 목: 'wood', 화: 'fire', 토: 'earth', 금: 'metal', 수: 'water' })[c]).filter(Boolean))];
+    if (chars.length === 1) return chars[0];
+  }
+  return null;
 }
 
 // Guess a palette for a column from its name and values: it applies only when every non-empty value maps.

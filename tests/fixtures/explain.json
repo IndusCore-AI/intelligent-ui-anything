@@ -1,7 +1,7 @@
 {
   "shape": "explain",
   "subject": "Test fixture: retention policy",
-  "question": "What does the fixture policy say, and what changed since version 1?",
+  "question": "What does the fixture policy say, and what changed since the last version?",
   "data": {
     "verbatim": true,
     "sections": [

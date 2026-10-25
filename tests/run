@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+'use strict';
+// One command for every test: node tests/run
+// Runs tests/*.test.js with Node's built-in test runner. No dependencies.
+const { readdirSync } = require('node:fs');
+const { join } = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+const files = readdirSync(__dirname).filter((f) => f.endsWith('.test.js')).sort().map((f) => join(__dirname, f));
+const r = spawnSync(process.execPath, ['--test', ...files], { stdio: 'inherit' });
+process.exitCode = r.status == null ? 1 : r.status;

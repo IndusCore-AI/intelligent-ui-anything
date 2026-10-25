@@ -1,0 +1,26 @@
+{
+  "shape": "compare",
+  "id": "five-element-planets",
+  "subject": "The five element planets",
+  "question": "How do the five planets named for the elements compare?",
+  "summary": "Chinese astronomy names each naked-eye planet for one of the five elements: 水星 Mercury is water, 金星 Venus metal, 火星 Mars fire, 木星 Jupiter wood and 土星 Saturn earth. The colours follow the elements, not the planets.",
+  "source": "NASA Planetary Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet), read 2026-10-25",
+  "data": {
+    "columns": [
+      { "key": "planet", "label": "Planet" },
+      { "key": "element", "label": "Element", "type": "five-elements" },
+      { "key": "orbit_days", "label": "Orbital period", "unit": "days" },
+      { "key": "diameter_km", "label": "Diameter", "unit": "km" },
+      { "key": "distance_mkm", "label": "Distance from the Sun", "unit": "million km" },
+      { "key": "moons", "label": "Moons" }
+    ],
+    "rows": [
+      { "planet": "水星 Mercury", "element": "Water 水", "orbit_days": 88.0, "diameter_km": 4879, "distance_mkm": 57.9, "moons": 0 },
+      { "planet": "金星 Venus", "element": "Metal 金", "orbit_days": 224.7, "diameter_km": 12104, "distance_mkm": 108.2, "moons": 0 },
+      { "planet": "火星 Mars", "element": "Fire 火", "orbit_days": 687.0, "diameter_km": 6792, "distance_mkm": 228.0, "moons": 2 },
+      { "planet": "木星 Jupiter", "element": "Wood 木", "orbit_days": 4331, "diameter_km": 142984, "distance_mkm": 778.5, "moons": 95 },
+      { "planet": "土星 Saturn", "element": "Earth 土", "orbit_days": 10747, "diameter_km": 120536, "distance_mkm": 1432.0, "moons": 274 }
+    ],
+    "chart": { "value": "orbit_days", "label": "planet", "title": "Days to go once around the Sun" }
+  }
+}

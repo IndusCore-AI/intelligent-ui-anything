@@ -1,0 +1,38 @@
+{
+  "shape": "compare",
+  "id": "comfyui-models",
+  "subject": "Image models for this ComfyUI setup",
+  "question": "Which checkpoint should the workflow load?",
+  "source": "GenEval Overall from Mage-Flow, arXiv 2607.19064v2, Table 9. Parameters, weight files, steps, licences and release months from each model's Hugging Face card and file listing. Read 2026-10-25.",
+  "locale": "en-US",
+  "data": {
+    "columns": [
+      { "key": "name", "label": "Model" },
+      { "key": "quality", "label": "GenEval", "better": "higher" },
+      { "key": "weights_gb", "label": "Weights", "unit": "GB", "better": "lower" },
+      { "key": "steps", "label": "Steps", "better": "lower" },
+      { "key": "params_b", "label": "Parameters", "unit": "B" },
+      { "key": "licence", "label": "Licence", "type": "tag" },
+      { "key": "released", "label": "Released" }
+    ],
+    "rows": [
+      { "name": "Qwen-Image", "quality": 0.87, "weights_gb": 40.86, "steps": 50, "params_b": 20, "licence": "Apache 2.0", "released": "2025-08" },
+      { "name": "FLUX.2 [dev]", "quality": 0.87, "weights_gb": 64.45, "steps": 50, "params_b": 32, "licence": "FLUX Non-Commercial License", "released": "2025-11" },
+      { "name": "FLUX.2 [klein] 9B", "quality": 0.86, "weights_gb": 18.16, "steps": 4, "params_b": 9, "licence": "FLUX Non-Commercial License", "released": "2026-01" },
+      { "name": "Z-Image", "quality": 0.84, "weights_gb": 12.31, "steps": 50, "params_b": 6, "licence": "Apache 2.0", "released": "2026-01" },
+      { "name": "FLUX.2 [klein] 4B", "quality": 0.83, "weights_gb": 7.75, "steps": 4, "params_b": 4, "licence": "Apache 2.0", "released": "2026-01" },
+      { "name": "HiDream-I1-Full", "quality": 0.83, "weights_gb": 34.21, "steps": 50, "params_b": 17, "licence": "MIT", "released": "2025-04" },
+      { "name": "Z-Image-Turbo", "quality": 0.82, "weights_gb": 12.31, "steps": 8, "params_b": 6, "licence": "Apache 2.0", "released": "2025-11" },
+      { "name": "FLUX.1 Krea [dev]", "quality": 0.72, "weights_gb": 23.8, "steps": 28, "params_b": 12, "licence": "FLUX.1 [dev] Non-Commercial License", "released": "2025-07" },
+      { "name": "Stable Diffusion 3.5 Large", "quality": 0.71, "weights_gb": 16.46, "steps": 28, "params_b": 8.1, "licence": "Stability Community License", "released": "2024-10" },
+      { "name": "FLUX.1 [dev]", "quality": 0.66, "weights_gb": 23.8, "steps": 50, "params_b": 12, "licence": "FLUX.1 [dev] Non-Commercial License", "released": "2024-08" }
+    ],
+    "chart": { "value": "quality", "label": "name", "title": "GenEval Overall, higher is better" },
+    "pick": { "prompt": "Use model {name}", "verb": "Use" },
+    "notes": [
+      "Weights is the size of the bf16 or fp16 diffusion weights only (text encoders and VAE excluded): the closest public stand-in for VRAM, not a measured figure. ComfyUI can offload or load smaller fp8 files.",
+      "Steps is the model card's default sampling steps, a stand-in for speed: fewer steps per image, though a step on a bigger model costs more.",
+      "Check the licence before commercial use: FLUX.2 [dev], FLUX.2 [klein] 9B and both FLUX.1 [dev] models are non-commercial."
+    ]
+  }
+}

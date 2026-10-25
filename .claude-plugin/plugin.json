@@ -1,0 +1,11 @@
+{
+  "name": "intelligent-ui-anything",
+  "displayName": "Intelligent UI Anything",
+  "version": "0.1.0",
+  "description": "Turns what a session produced into the smallest interactive page that answers one question, opened where the user is, and returns the user's pick to the agent.",
+  "author": { "name": "IndusCore", "url": "https://induscore.site" },
+  "homepage": "https://github.com/gaurpulkit/intelligent-ui-anything",
+  "repository": "https://github.com/gaurpulkit/intelligent-ui-anything",
+  "license": "MIT",
+  "keywords": ["intelligent-ui", "generative-ui", "interactive-ui", "html-report", "artifact", "skill"]
+}

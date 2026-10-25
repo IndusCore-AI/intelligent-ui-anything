@@ -51,7 +51,9 @@ function launch(cmd, args, opts = {}) {
     child.on('error', (e) => { clearTimeout(timer); resolve({ ok: false, error: e.message }); });
     child.on('exit', (code) => {
       clearTimeout(timer);
-      resolve(code === 0 ? { ok: true } : { ok: false, error: err.trim().split('\n')[0] || `exit ${code}${cmd === 'xdg-open' && code === 3 ? ' (no browser found)' : ''}` });
+      const last = err.trim().split('\n').filter(Boolean).pop() || '';
+      const why = cmd === 'xdg-open' && code === 3 ? 'no browser found' : cmd === 'xdg-open' && code === 4 ? 'the browser could not be started' : last;
+      resolve(code === 0 ? { ok: true } : { ok: false, error: `exit ${code}${why ? `, ${why}` : ''}` });
     });
   });
 }

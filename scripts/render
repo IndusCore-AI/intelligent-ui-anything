@@ -15,7 +15,7 @@ const { spawn } = require('node:child_process');
 const { build, InputError } = require('./lib/shapes');
 const { renderTemplate } = require('./lib/template');
 const { financeConvention } = require('./lib/semantics');
-const { slug } = require('./lib/text');
+const { slug, typo } = require('./lib/text');
 const host = require('./lib/host');
 
 const ASSETS = join(__dirname, '..', 'assets');
@@ -34,10 +34,10 @@ function renderPage(input, { now = new Date() } = {}) {
   const view = {
     shape: input.shape,
     subject: input.subject.trim(),
-    question: input.question || '',
-    summary: input.summary || '',
+    question: typo(input.question || ''),
+    summary: typo(input.summary || ''),
     description: input.question || input.summary || input.subject,
-    source: input.source || '',
+    source: typo(input.source || ''),
     lang: (input.lang || locale).split(/[-_]/)[0].toLowerCase(),
     finance,
     liveSeconds: '',

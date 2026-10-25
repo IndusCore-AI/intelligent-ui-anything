@@ -1,7 +1,7 @@
 'use strict';
 // The five shapes. Each takes the agent's JSON, checks it, and returns the view a template fills.
 // No shape invents a number: every figure printed is the agent's own value or a count of the agent's items.
-const { esc, inline, blocks, fmtNumber, slug } = require('./text');
+const { esc, typo, inline, blocks, fmtNumber, slug } = require('./text');
 const sem = require('./semantics');
 
 const SHAPES = ['compare', 'choose', 'explain', 'track', 'inspect'];
@@ -160,7 +160,7 @@ function compare(input, ctx) {
     rowCount: rows.length,
     tableLabel: d.table_label || `${input.subject}, as a table`,
     chart,
-    notes: Array.isArray(d.notes) ? d.notes.map(str) : d.notes ? [str(d.notes)] : [],
+    notes: (Array.isArray(d.notes) ? d.notes : d.notes ? [d.notes] : []).map((n) => typo(str(n))),
     pick: pickIn ? { header: pickIn.header || 'Pick' } : null,
     decide: { title: 'Your pick', empty: 'Nothing picked yet. Pick a row.', head: '', note: pickIn ? pickIn.note !== false : false },
   };
@@ -179,10 +179,10 @@ function choose(input) {
     let facts = o.facts;
     if (isObj(facts)) facts = Object.entries(facts).map(([label, value]) => ({ label, value }));
     facts = Array.isArray(facts) ? facts.map((f) => ({ label: str(f.label), value: typeof f.value === 'number' ? fmtNumber(f.value) : str(f.value) })) : [];
-    const pros = (o.pros || o.good || []).map(str);
-    const cons = (o.cons || o.watch || o.risks || []).map(str);
+    const pros = (o.pros || o.good || []).map((x) => typo(str(x)));
+    const cons = (o.cons || o.watch || o.risks || []).map((x) => typo(str(x)));
     return {
-      index: i, title, summary: str(o.summary || o.description), recommended: !!o.recommended, why: str(o.why || o.reason),
+      index: i, title, summary: typo(str(o.summary || o.description)), recommended: !!o.recommended, why: typo(str(o.why || o.reason)),
       facts, hasFacts: facts.length > 0, pros, hasPros: pros.length > 0, cons, hasCons: cons.length > 0,
       prompt: fill(o.prompt || d.prompt || 'Go with {title}', { ...o, title }),
       verb: d.verb || 'Choose this',

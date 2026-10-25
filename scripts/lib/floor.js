@@ -159,20 +159,26 @@ function check(html, { data = null, locale = 'en-US' } = {}) {
     const { light, darkAttr } = themes(rules);
     add(4, 'Body text 4.5:1 and marks 3:1, light and dark', [...contrastFailures(light, 'light'), ...contrastFailures({ ...light, ...darkAttr }, 'dark')]);
   }
-  // 5. Nothing invented: every number on the page is in the agent's input or is a count the page derived.
+  // 5. Nothing invented: every number on the page comes from the structured data (rows, options, items, sections)
+  // or the source line, or is a count the page derived. The page-level prose (title, question, summary, notes,
+  // chart captions) may only repeat numbers the data holds, so a claim like "40% faster" needs a row behind it.
   {
     const p = [];
     if (data) {
-      const allowed = numbersIn(data);
+      const facts = JSON.parse(JSON.stringify(data.data || data));
+      delete facts.notes;
+      if (facts.chart && typeof facts.chart === 'object') { delete facts.chart.title; delete facts.chart.note; }
+      const allowed = numbersIn(facts);
+      numbersIn(data.source, allowed);
       const addFormatted = (v) => {
         if (typeof v === 'number') for (const n of fmtNumber(v, locale).match(NUM_RE) || []) allowed.add(normNum(n));
         else if (Array.isArray(v)) v.forEach(addFormatted);
         else if (v && typeof v === 'object') Object.values(v).forEach(addFormatted);
       };
-      addFormatted(data);
+      addFormatted(facts);
       for (const { t, f } of visible) {
         if (f.derived) continue;
-        for (const n of t.match(NUM_RE) || []) if (!allowed.has(normNum(n))) p.push(`"${n}" in "${t.trim().slice(0, 60)}" is not in the input`);
+        for (const n of t.match(NUM_RE) || []) if (!allowed.has(normNum(n))) p.push(`"${n}" in "${t.trim().slice(0, 60)}" is not in the data or the source`);
       }
     }
     add(5, 'No number the input did not give', p);

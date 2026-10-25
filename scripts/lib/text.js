@@ -22,13 +22,16 @@ function safeHref(href) {
   return null;
 }
 
+// Prose typography: a straight apostrophe inside a word becomes a typographic one. Prompt lines are left exact.
+const typo = (s) => String(s == null ? '' : s).replace(/(\p{L})'(\p{L})/gu, '$1\u2019$2');
+
 // Inline Markdown: `code`, **bold**, *italic*, [text](href). Everything else is escaped text.
 function inline(src) {
   const parts = [];
   const re = /`([^`]+)`|\*\*([^*]+)\*\*|\*([^*\s][^*]*)\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
   let last = 0;
   let m;
-  const s = String(src == null ? '' : src);
+  const s = typo(src);
   while ((m = re.exec(s))) {
     parts.push(esc(s.slice(last, m.index)));
     if (m[1] != null) parts.push(`<code>${esc(m[1])}</code>`);
@@ -106,11 +109,12 @@ function numbersIn(value, acc = new Set()) {
   if (typeof value === 'object') { for (const [k, v] of Object.entries(value)) { numbersIn(k, acc); numbersIn(v, acc); } }
   return acc;
 }
-const NUM_RE = /\d[\d,]*(?:\.\d+)?/g;
+// A quantity: digits not glued to letters, so fp16, v2 and H100 are names, not numbers.
+const NUM_RE = /(?<![\p{L}\d.,])\d[\d,]*(?:\.\d+)?(?![\p{L}\d])/gu;
 function normNum(n) {
   let s = String(n).replace(/,/g, '');
   if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
   return s.replace(/^0+(?=\d)/, '');
 }
 
-module.exports = { esc, slug, inline, blocks, fmtNumber, numbersIn, normNum, NUM_RE, safeHref };
+module.exports = { esc, typo, slug, inline, blocks, fmtNumber, numbersIn, normNum, NUM_RE, safeHref };

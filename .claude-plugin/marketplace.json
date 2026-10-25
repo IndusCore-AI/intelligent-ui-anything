@@ -1,0 +1,11 @@
+{
+  "name": "intelligent-ui-anything",
+  "owner": { "name": "IndusCore", "url": "https://induscore.site" },
+  "plugins": [
+    {
+      "name": "intelligent-ui-anything",
+      "source": "./",
+      "description": "Turns what a session produced into the smallest interactive page that answers one question, and returns the user's pick to the agent."
+    }
+  ]
+}
