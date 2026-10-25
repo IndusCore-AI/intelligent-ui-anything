@@ -1,0 +1,211 @@
+{
+  "shape": "inspect",
+  "id": "post-session-review",
+  "subject": "Three sessions, one review",
+  "question": "What changed, what is risky, and which open items need your call?",
+  "summary": "Research, build and host-test sessions from today. Pick one option per open item and press Copy or Send.",
+  "source": "examples/sessions/1-research.log, 2-build.log and 3-hosts.log, three real session logs from building this skill on 2026-10-25. An agent wrote this JSON from them.",
+  "data": {
+    "lanes": [
+      "changed",
+      "risky",
+      "undecided"
+    ],
+    "source_label": "Session",
+    "items": [
+      {
+        "lane": "changed",
+        "source": "research",
+        "at": "10:05-11:22",
+        "title": "Call notes cleaned and research written",
+        "detail": "Wrote 00-cleaned-notes.md, 01-analysis.md, research-1..4 and prompts/prompt-1..4.",
+        "files": [
+          "~/Desktop/research/14-skills-launch/"
+        ]
+      },
+      {
+        "lane": "changed",
+        "source": "research",
+        "title": "teamctx entries recorded",
+        "detail": "k:1091 (naming evidence: \"Intelligent UI\" is OpenAI's feature name since 2026-10-07), k:1093, k:1094, k:1096 (launch plan)."
+      },
+      {
+        "lane": "changed",
+        "source": "research",
+        "title": "Private plan artifact published"
+      },
+      {
+        "lane": "changed",
+        "source": "research",
+        "title": "Decided: Intelligent UI Anything first, Connect Anything second",
+        "detail": "Both to be tested together on 2026-10-26."
+      },
+      {
+        "lane": "changed",
+        "source": "build",
+        "at": "15:30-17:00",
+        "title": "Skill built in two commits",
+        "detail": "`78cba8b` core: five shape templates, one theme, render, check and serve. `7702a13` references, tests, CI, plugin manifests and two sourced examples.",
+        "files": [
+          "SKILL.md",
+          "scripts/render",
+          "scripts/serve",
+          "scripts/check",
+          "scripts/lib/*.js",
+          "assets/theme.css",
+          "assets/templates/*.html",
+          "references/*.md",
+          "tests/*.test.js"
+        ]
+      },
+      {
+        "lane": "changed",
+        "source": "build",
+        "title": "Hallmark sloplint vendored",
+        "detail": "Upstream commit `7ec8682` (MIT), blob identical to upstream."
+      },
+      {
+        "lane": "changed",
+        "source": "build",
+        "title": "Checks green",
+        "detail": "`node tests/run` 20 of 20 pass; `scripts/check --templates` 5 of 5 pass with 0 lint findings; skills-ref validate passes; claude plugin validate passes with one warning (no icon)."
+      },
+      {
+        "lane": "changed",
+        "source": "hosts",
+        "at": "16:20-16:45",
+        "title": "Host detection now checks Codex before Claude Code",
+        "detail": "Codex started from Claude Code inherits `CLAUDECODE=1`, so Codex markers (`CODEX_SANDBOX`, `CODEX_CI`) are checked first.",
+        "files": [
+          "scripts/lib/host.js"
+        ]
+      },
+      {
+        "lane": "changed",
+        "source": "hosts",
+        "title": "Codex and Linux paths measured",
+        "detail": "In `codex exec`, `open probe.html` fails in the sandbox (exit 1). In Docker Linux, headless prints the path, `xdg-open` with no browser exits 3, and SSH serves on 127.0.0.1 with an `ssh -L` line."
+      },
+      {
+        "lane": "changed",
+        "source": "hosts",
+        "title": "Colima restarted",
+        "detail": "Its Docker socket had been dead since 2026-09-23. Machine state, not repo state."
+      },
+      {
+        "lane": "risky",
+        "source": "research",
+        "severity": "high",
+        "title": "Name may raise a trademark question with OpenAI",
+        "detail": "\"Intelligent UI\" is OpenAI's feature name since 2026-10-07 (teamctx k:1091). Unverified. Touches the org, the repo name and the launch."
+      },
+      {
+        "lane": "risky",
+        "source": "build",
+        "severity": "medium",
+        "title": "Copy button in a claude.ai artifact may be blocked",
+        "detail": "The viewer's sandbox may block clipboard access. Not tested. Copy is the fallback for returning a pick, so this matters there."
+      },
+      {
+        "lane": "risky",
+        "source": "hosts",
+        "severity": "medium",
+        "title": "Local server stops after 30 idle minutes",
+        "detail": "A user who reads longer loses Send and must use Copy. If Copy is also blocked somewhere, the pick has no way back."
+      },
+      {
+        "lane": "risky",
+        "source": "build",
+        "severity": "medium",
+        "title": "Windows `start` path never run",
+        "detail": "No Windows machine was available."
+      },
+      {
+        "lane": "risky",
+        "source": "build",
+        "severity": "low",
+        "title": "Cursor and Antigravity markers unverified",
+        "detail": "Neither is installed; detection there is untested and falls back to defaults."
+      },
+      {
+        "lane": "undecided",
+        "source": "research",
+        "title": "Which GitHub org publishes the skills?",
+        "detail": "Also gates the plugin icon decision below.",
+        "options": [
+          {
+            "label": "IndusCore",
+            "prompt": "Publish under the IndusCore org"
+          },
+          {
+            "label": "IndusCore-AI",
+            "prompt": "Publish under the IndusCore-AI org"
+          }
+        ]
+      },
+      {
+        "lane": "undecided",
+        "source": "research",
+        "title": "Launch date",
+        "detail": "No date is set in the logs. The joint test is 2026-10-26.",
+        "options": [
+          {
+            "label": "Set it after the joint test",
+            "prompt": "Set the launch date after the 2026-10-26 joint test"
+          },
+          {
+            "label": "Wait for the trademark check",
+            "prompt": "Hold the launch date until the trademark question is checked"
+          }
+        ]
+      },
+      {
+        "lane": "undecided",
+        "source": "research",
+        "title": "Release cadence",
+        "options": [
+          {
+            "label": "One release a week",
+            "prompt": "Release one skill a week"
+          },
+          {
+            "label": "One release a day",
+            "prompt": "Release one skill a day"
+          }
+        ]
+      },
+      {
+        "lane": "undecided",
+        "source": "build",
+        "title": "How much to test the skill description?",
+        "detail": "The full skill-creator loop is about 300 `claude -p` runs; the other option is a two-round check.",
+        "options": [
+          {
+            "label": "Full description loop",
+            "prompt": "Run the full skill-creator description loop"
+          },
+          {
+            "label": "Two-round check",
+            "prompt": "Keep the two-round description check"
+          }
+        ]
+      },
+      {
+        "lane": "undecided",
+        "source": "build",
+        "title": "Plugin icon now or later?",
+        "detail": "Clears the one plugin validate warning.",
+        "options": [
+          {
+            "label": "Add it now",
+            "prompt": "Add a plugin icon now"
+          },
+          {
+            "label": "After the org exists",
+            "prompt": "Add the plugin icon after the org is created"
+          }
+        ]
+      }
+    ]
+  }
+}

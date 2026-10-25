@@ -21,7 +21,7 @@ const host = require('./lib/host');
 const ASSETS = join(__dirname, '..', 'assets');
 const TARGETS = ['auto', 'browser', 'serve', 'artifact', 'path'];
 
-function renderPage(input, { now = new Date() } = {}) {
+function renderPage(input, { now = new Date(), fragment = false } = {}) {
   const locale = typeof input.locale === 'string' && input.locale ? input.locale : 'en-US';
   const fmt = (o) => { try { return new Intl.DateTimeFormat(locale, o).format(now); } catch { return now.toISOString(); } };
   const ctx = {
@@ -46,6 +46,7 @@ function renderPage(input, { now = new Date() } = {}) {
     css: readFileSync(join(ASSETS, 'theme.css'), 'utf8').trim(),
     js: readFileSync(join(ASSETS, 'page.js'), 'utf8').trim(),
     ...shapeView,
+    fragment,
   };
   return { html: renderTemplate(input.shape, view), view };
 }
@@ -97,7 +98,8 @@ async function main(argv) {
     return 2;
   }
   let html;
-  try { ({ html } = renderPage(input)); } catch (e) {
+  const renderedAt = new Date();
+  try { ({ html } = renderPage(input, { now: renderedAt })); } catch (e) {
     if (e instanceof InputError) { console.error(`render: the input needs fixing:\n- ${e.problems.join('\n- ')}`); return 2; }
     throw e;
   }
@@ -146,7 +148,9 @@ async function main(argv) {
   const shouldOpen = opts.open != null ? opts.open : !(existed && live);
 
   if (target === 'artifact') {
-    say('next', 'publish this file with your Artifact tool. Inside an artifact the pick returns by the Copy button.');
+    // The Artifact tool wraps the file in its own document, so it gets the same page without one.
+    writeFileSync(file, renderPage(input, { now: renderedAt, fragment: true }).html);
+    say('next', 'publish this file with your Artifact tool (it is written without its own <html> and <head>, as the tool expects). Inside an artifact the pick returns by the Copy button.');
     return 0;
   }
   if (target === 'path') {

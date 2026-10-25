@@ -23,15 +23,17 @@ function safeHref(href) {
 }
 
 // Prose typography: a straight apostrophe inside a word becomes a typographic one. Prompt lines are left exact.
-const typo = (s) => String(s == null ? '' : s).replace(/(\p{L})'(\p{L})/gu, '$1\u2019$2');
+const typo = (s) => String(s == null ? '' : s)
+  .replace(/(\p{L})'(\p{L})/gu, '$1\u2019$2')
+  .replace(/(^|[\s([])"([^"\n]+)"(?=[\s.,;:!?)\]]|$)/gu, '$1\u201c$2\u201d');
 
 // Inline Markdown: `code`, **bold**, *italic*, [text](href). Everything else is escaped text.
-function inline(src) {
+function inline(src, raw = false) {
   const parts = [];
   const re = /`([^`]+)`|\*\*([^*]+)\*\*|\*([^*\s][^*]*)\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
   let last = 0;
   let m;
-  const s = typo(src);
+  const s = raw ? String(src == null ? '' : src) : typo(src);
   while ((m = re.exec(s))) {
     parts.push(esc(s.slice(last, m.index)));
     if (m[1] != null) parts.push(`<code>${esc(m[1])}</code>`);
@@ -48,18 +50,18 @@ function inline(src) {
 }
 
 // Block Markdown: paragraphs, "- " and "1. " lists, "### " subheads, fenced code. No raw HTML passes.
-function blocks(src) {
+function blocks(src, raw = false) {
   const lines = String(src == null ? '' : src).replace(/\r\n?/g, '\n').split('\n');
   const out = [];
   let para = [];
   let list = null;
   let code = null;
   const flushPara = () => {
-    if (para.length) out.push(`<p>${inline(para.join(' '))}</p>`);
+    if (para.length) out.push(`<p>${inline(para.join(' '), raw)}</p>`);
     para = [];
   };
   const flushList = () => {
-    if (list) out.push(`<${list.tag}>${list.items.map((i) => `<li>${inline(i)}</li>`).join('')}</${list.tag}>`);
+    if (list) out.push(`<${list.tag}>${list.items.map((i) => `<li>${inline(i, raw)}</li>`).join('')}</${list.tag}>`);
     list = null;
   };
   for (const raw of lines) {
@@ -80,7 +82,7 @@ function blocks(src) {
       list.items.push(m[1]);
     } else if ((m = /^#{3,6}\s+(.*)$/.exec(line))) {
       flushPara(); flushList();
-      out.push(`<h3>${inline(m[1])}</h3>`);
+      out.push(`<h3>${inline(m[1], raw)}</h3>`);
     } else if (!line.trim()) {
       flushPara(); flushList();
     } else {

@@ -211,7 +211,7 @@ function explain(input) {
     return {
       id, title: str(s.title), change, sem: change ? `sem-${change}` : '',
       changeLabel: change ? titleCase(change) : '', note: str(s.note),
-      bodyHtml: blocks(s.body), wasHtml: s.was ? blocks(s.was) : '', verbatim,
+      bodyHtml: blocks(s.body, verbatim), wasHtml: s.was ? blocks(s.was, verbatim) : '', verbatim,
     };
   });
   if (problems.length) throw new InputError(problems);

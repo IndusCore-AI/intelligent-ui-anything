@@ -1,0 +1,7 @@
+SESSION host tests (Codex CLI 0.164.0-alpha.11.1 and Docker node:22-slim, 2026-10-25 16:20-16:45 EDT)
+- codex exec: shell env has CODEX_SANDBOX=seatbelt, CODEX_CI=1, CODEX_PERMISSION_PROFILE=:read-only
+- codex exec: `open probe.html` fails inside the sandbox (kLSExecutableIncorrectFormat, exit 1)
+- changed scripts/lib/host.js: Codex markers are checked before CLAUDECODE, because Codex started from Claude Code inherits CLAUDECODE=1
+- Docker Linux: headless prints the path; xdg-open with no browser exits 3; SSH serves on 127.0.0.1 and prints an ssh -L line
+- restarted Colima: its Docker socket had been dead since 2026-09-23
+- risk: the localhost server stops after 30 idle minutes, so a user who reads for longer must use Copy

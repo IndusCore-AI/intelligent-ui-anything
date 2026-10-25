@@ -110,7 +110,7 @@
     viewSwitch.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-view]');
       if (!b) return;
-      doc.body.setAttribute('data-view', b.getAttribute('data-view'));
+      $('.page').setAttribute('data-view', b.getAttribute('data-view'));
       $$('button', viewSwitch).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
     });
   }
@@ -167,7 +167,7 @@
         sendBtn.setAttribute('aria-busy', 'true');
         sendBtn.disabled = true;
         status.textContent = 'Sending to the agent.';
-        fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: d.prompt, picks: d.picks, note: d.note, subject: doc.title, shape: doc.body.getAttribute('data-shape') }) })
+        fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: d.prompt, picks: d.picks, note: d.note, subject: doc.title, shape: $('.page').getAttribute('data-shape') }) })
           .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
           .then(function () { sendBtn.removeAttribute('aria-busy'); sendBtn.setAttribute('data-state', 'done'); status.textContent = 'Sent. The agent has your pick; you can close this tab.'; })
           .catch(function () { sendBtn.removeAttribute('aria-busy'); sendBtn.disabled = false; sendBtn.setAttribute('data-state', 'error'); status.textContent = 'Not sent: the local server did not answer. Use Copy instead.'; });

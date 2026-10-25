@@ -20,7 +20,9 @@ test('text: escaping and the Markdown subset never pass raw HTML', () => {
   assert.match(text.inline('[ok](https://example.org)'), /href="https:\/\/example.org" rel="noopener noreferrer"/);
   assert.equal(text.blocks('- a\n- b\n\npara'), '<ul><li>a</li><li>b</li></ul>\n<p>para</p>');
   assert.equal(text.slug('Image models: ComfyUI!'), 'image-models-comfyui');
-  assert.equal(text.typo("the card's steps"), 'the card’s steps');
+  assert.equal(text.typo("the card's steps"), 'the card\u2019s steps');
+  assert.equal(text.typo('it says "fast" here'), 'it says \u201cfast\u201d here');
+  assert.equal(text.blocks('say "x"', true), '<p>say &quot;x&quot;</p>');
 });
 
 test('text: number normalisation for the no-invented-numbers rule', () => {
