@@ -1,0 +1,93 @@
+#!/usr/bin/env node
+'use strict';
+// The floor check: ten rules plus two security rules (scripts/lib/floor.js), then the vendored Hallmark lint
+// (scripts/vendor/hallmark/sloplint.mjs) at app scope. A page passes with no floor failure and no lint FAIL or REFLEX.
+//
+//   node scripts/check <page.html ...> [--data input.json] [--json]
+//   node scripts/check --templates        renders every shape from tests/fixtures and checks the result
+//
+// Exit code: 0 pass, 1 a page failed, 2 usage error.
+const { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } = require('node:fs');
+const { join, basename } = require('node:path');
+const { tmpdir } = require('node:os');
+const { spawnSync } = require('node:child_process');
+const floor = require('./lib/floor');
+
+const SLOPLINT = join(__dirname, 'vendor', 'hallmark', 'sloplint.mjs');
+const SKIP_GATES = new Set(['20']); // the Hallmark stamp is a comment crediting Hallmark; generated pages carry no credit
+
+// Quoted source text (a document's own words, a diff) is material, not copy: the lint reads a copy with it masked.
+function maskVerbatim(html) {
+  return html.replace(/(<(div|pre)\b[^>]*\bdata-verbatim\b[^>]*>)([\s\S]*?)(<\/\2>)/g, (m, open, tag, inner, close) => open + inner.replace(/>([^<]+)</g, (x, t) => `>${t.trim() ? 'quoted text' : t}<`).replace(/^[^<]+/, 'quoted text') + close);
+}
+
+function lint(html) {
+  const dir = mkdtempSync(join(tmpdir(), 'iua-check-'));
+  const file = join(dir, 'page.html');
+  writeFileSync(file, maskVerbatim(html));
+  const run = spawnSync(process.execPath, [SLOPLINT, file, '--scope', 'app', '--json'], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, cwd: dir });
+  rmSync(dir, { recursive: true, force: true });
+  let out;
+  try { out = JSON.parse(run.stdout); } catch { return { error: (run.stderr || run.stdout || 'the lint produced no output').trim().split('\n').slice(0, 3).join(' ') }; }
+  const findings = (out.findings || []).filter((f) => !SKIP_GATES.has(String(f.gate)));
+  return {
+    fails: findings.filter((f) => f.grade === 'FAIL'),
+    reflex: findings.filter((f) => f.grade === 'REFLEX'),
+    warns: findings.filter((f) => f.grade === 'WARN'),
+  };
+}
+
+function checkPage(html, { data = null, locale } = {}) {
+  const rules = floor.check(html, { data, locale });
+  const l = lint(html);
+  const ok = rules.every((r) => r.ok) && !l.error && !l.fails.length && !l.reflex.length;
+  return { ok, rules, lint: l, dataChecked: !!data };
+}
+
+function report(name, res) {
+  const lines = [];
+  const passed = res.rules.filter((r) => r.ok).length;
+  const l = res.lint;
+  lines.push(`${name}: ${res.ok ? 'pass' : 'FAIL'}. Floor ${passed}/${res.rules.length}${res.dataChecked ? '' : ' (numbers rule not run: pass --data)'}; lint ${l.error ? 'did not run' : `${l.fails.length} FAIL, ${l.reflex.length} REFLEX, ${l.warns.length} WARN`}.`);
+  for (const r of res.rules) if (!r.ok) lines.push(`  floor ${r.id} ${r.name}: ${r.detail.join('; ')}`);
+  if (l.error) lines.push(`  lint: ${l.error}`);
+  else for (const f of [...l.fails, ...l.reflex, ...l.warns]) lines.push(`  lint ${f.grade} ${f.gate}: ${f.evidence} | fix: ${f.fix}`);
+  return lines.join('\n');
+}
+
+function main(argv) {
+  const files = [];
+  let dataFile = null, json = false, templates = false;
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--data') dataFile = argv[++i];
+    else if (a === '--json') json = true;
+    else if (a === '--templates') templates = true;
+    else if (a === '-h' || a === '--help') { console.log('usage: node scripts/check <page.html ...> [--data input.json] [--json] | --templates'); return 0; }
+    else if (a.startsWith('--')) { console.error(`check: unknown flag ${a}`); return 2; }
+    else files.push(a);
+  }
+  const results = [];
+  if (templates) {
+    const { renderPage } = require('./render');
+    const fixtures = join(__dirname, '..', 'tests', 'fixtures');
+    for (const shape of ['compare', 'choose', 'explain', 'track', 'inspect']) {
+      const input = JSON.parse(readFileSync(join(fixtures, `${shape}.json`), 'utf8'));
+      const { html } = renderPage(input, { now: new Date('2026-10-25T12:00:00Z') });
+      results.push({ name: `template ${shape}`, res: checkPage(html, { data: input, locale: input.locale }) });
+    }
+  }
+  if (!files.length && !templates) { console.error('check: name the page(s) to check, or pass --templates'); return 2; }
+  const data = dataFile ? JSON.parse(readFileSync(dataFile, 'utf8')) : null;
+  for (const f of files) {
+    if (!existsSync(f)) { console.error(`check: no such file ${f}`); return 2; }
+    results.push({ name: basename(f), res: checkPage(readFileSync(f, 'utf8'), { data, locale: data && data.locale }) });
+  }
+  if (json) console.log(JSON.stringify(results, null, 2));
+  else for (const r of results) console.log(report(r.name, r.res));
+  return results.every((r) => r.res.ok) ? 0 : 1;
+}
+
+if (require.main === module) process.exitCode = main(process.argv.slice(2));
+
+module.exports = { checkPage, report, maskVerbatim };

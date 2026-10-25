@@ -1,0 +1,24 @@
+{{>head}}
+<section class="progress" aria-labelledby="progress-h">
+  <h2 id="progress-h" class="visually-hidden">Progress</h2>
+  <p class="progress-line"><strong data-derived>{{done}}</strong> of <span data-derived>{{total}}</span> done{{#failed}}, <span data-derived>{{failed}}</span> failed{{/failed}}</p>
+  <div class="meter" aria-hidden="true"><span class="meter-fill" style="--share: {{share}}"></span></div>
+  {{#live}}<p class="live-line"><span>Updating while the agent works. Last change <time data-derived>{{updated}}</time>.</span><button type="button" class="btn" data-live-toggle aria-pressed="false" hidden>Pause updates</button></p>{{/live}}
+  {{^live}}<p class="live-line">The agent marked this finished at <time data-derived>{{updated}}</time>.</p>{{/live}}
+</section>
+{{#groups}}
+<section class="track-group" aria-label="{{label}}">
+  {{#title}}<h2>{{title}}</h2>{{/title}}
+  <ol class="checklist">
+    {{#items}}
+    <li class="check-item {{sem}}" data-status="{{statusKey}}">
+      <span class="status"><span class="swatch" aria-hidden="true"></span>{{statusLabel}}</span>
+      <span class="check-title">{{title}}</span>
+      {{#at}}<span class="check-time">{{at}}</span>{{/at}}{{^at}}<span class="check-time"></span>{{/at}}
+      {{#note}}<span class="check-note">{{note}}</span>{{/note}}
+    </li>
+    {{/items}}
+  </ol>
+</section>
+{{/groups}}
+{{>foot}}

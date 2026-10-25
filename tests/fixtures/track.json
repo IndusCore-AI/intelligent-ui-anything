@@ -1,0 +1,13 @@
+{
+  "shape": "track",
+  "subject": "Test fixture: migration checklist",
+  "question": "How far along is the fixture migration?",
+  "data": {
+    "items": [
+      { "title": "Back up the database", "status": "done", "at": "10:02", "group": "Prepare" },
+      { "title": "Run migration 097", "status": "running", "note": "Table 3 of 7", "group": "Migrate" },
+      { "title": "Check row counts", "status": "waiting", "group": "Migrate" },
+      { "title": "Rebuild search index", "status": "skipped", "note": "Not needed for this change", "group": "Finish" }
+    ]
+  }
+}

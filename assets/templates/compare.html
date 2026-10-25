@@ -1,0 +1,45 @@
+{{>head}}
+{{#chart}}
+<section class="chart" aria-labelledby="chart-h">
+  <h2 id="chart-h">{{chart.title}}</h2>
+  <ol class="bars">
+    {{#chart.bars}}
+    <li class="bar-row {{sem}}">
+      <span class="bar-label"><span class="swatch" aria-hidden="true"></span>{{label}}</span>
+      <span class="bar-track" aria-hidden="true">{{^blank}}<span class="bar" style="--share: {{share}}"></span>{{/blank}}</span>
+      <span class="bar-value">{{#blank}}<span class="blank">{{value}}</span>{{/blank}}{{^blank}}{{value}}{{#unit}} <span class="unit">{{unit}}</span>{{/unit}}{{/blank}}</span>
+    </li>
+    {{/chart.bars}}
+  </ol>
+  {{#chart.note}}<p class="chart-note">{{chart.note}}</p>{{/chart.note}}
+</section>
+{{/chart}}
+<section class="matrix" aria-labelledby="matrix-h">
+  <h2 id="matrix-h" class="visually-hidden">{{tableLabel}}</h2>
+  <div class="toolbar" data-toolbar hidden>
+    <label class="search">Filter <input type="search" data-filter placeholder="Type to narrow the rows" autocomplete="off"></label>
+    <p class="count-line" aria-live="polite"><span data-count data-derived>{{rowCount}}</span> of <span data-derived>{{rowCount}}</span> shown</p>
+  </div>
+  <p class="visually-hidden" data-sort-status aria-live="polite"></p>
+  <div class="table-wrap" role="region" aria-label="{{tableLabel}}" tabindex="0">
+    <table data-sortable>
+      <thead>
+        <tr>
+          {{#columns}}<th scope="col" class="{{align}}" aria-sort="none"><button type="button" class="sort" data-col="{{index}}" data-type="{{sortType}}" data-first="{{firstDir}}" data-label="{{label}}">{{label}}{{#unit}} <span class="unit">({{unit}})</span>{{/unit}}<span class="dir" aria-hidden="true"></span></button></th>{{/columns}}
+          {{#pick}}<th scope="col" class="pick-col"><span class="visually-hidden">{{pick.header}}</span></th>{{/pick}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#rows}}
+        <tr data-row data-item data-text="{{text}}">
+          {{#cells}}{{#head}}<th scope="row" class="{{align}}" data-sort="{{sort}}">{{{html}}}</th>{{/head}}{{^head}}<td class="{{align}}" data-sort="{{sort}}">{{{html}}}</td>{{/head}}{{/cells}}
+          {{#pickPrompt}}<td class="pick-col"><label class="choice"><input type="radio" name="pick" value="{{index}}" data-prompt="{{pickPrompt}}" data-label="{{pickLabel}}"><span>{{pickVerb}}</span><span class="visually-hidden"> {{pickLabel}}</span></label></td>{{/pickPrompt}}
+        </tr>
+        {{/rows}}
+      </tbody>
+    </table>
+  </div>
+  {{#notes}}<p class="chart-note">{{.}}</p>{{/notes}}
+</section>
+{{#pick}}{{>decide}}{{/pick}}
+{{>foot}}

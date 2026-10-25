@@ -1,0 +1,14 @@
+{
+  "shape": "inspect",
+  "subject": "Test fixture: two sessions reviewed",
+  "question": "What changed, what is risky and what is undecided?",
+  "data": {
+    "lanes": ["changed", "risky", "undecided"],
+    "items": [
+      { "lane": "changed", "title": "Added a retry to the uploader", "source": "Session A", "at": "09:14", "files": ["src/upload.js"], "diff": "@@ -1,3 +1,4 @@\n const tries = 1;\n-send();\n+for (let i = 0; i < 3; i++) send();\n" },
+      { "lane": "risky", "title": "The retry can send twice", "detail": "No idempotency key on the request.", "severity": "high", "source": "Session A" },
+      { "lane": "risky", "title": "Old cache keys stay", "severity": "low", "source": "Session B" },
+      { "lane": "undecided", "title": "Keep the retry?", "source": "Session B", "options": ["Keep it", "Revert it"] }
+    ]
+  }
+}

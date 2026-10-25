@@ -1,0 +1,13 @@
+{
+  "shape": "choose",
+  "subject": "Test fixture: how to land the branch",
+  "question": "Which way should the fixture branch land?",
+  "data": {
+    "options": [
+      { "title": "Rebase onto main", "summary": "One straight line of history.", "pros": ["Clean log"], "cons": ["Rewrites the branch"], "facts": { "Conflicts": "2 files" }, "recommended": true, "why": "The branch is private, so rewriting it is safe." },
+      { "title": "Merge main in", "summary": "Keeps every commit as written.", "pros": ["No rewrite"], "cons": ["A merge commit in the log"] },
+      { "title": "Squash and merge", "summary": "One commit on main.", "cons": ["Loses the step-by-step history"] }
+    ],
+    "prompt": "Land the branch with: {title}"
+  }
+}

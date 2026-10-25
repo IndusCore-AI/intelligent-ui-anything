@@ -1,0 +1,19 @@
+{{>head}}
+<section class="options" aria-labelledby="options-h">
+  <h2 id="options-h" class="visually-hidden">Options</h2>
+  <ul class="option-grid">
+    {{#options}}
+    <li class="option">
+      <h3 class="option-title" id="opt-{{index}}">{{title}}</h3>
+      {{#recommended}}<p class="recommend"><strong>Recommended.</strong>{{#why}} {{why}}{{/why}}</p>{{/recommended}}
+      {{#summary}}<p class="option-summary">{{summary}}</p>{{/summary}}
+      {{#hasFacts}}<dl class="facts">{{#facts}}<div class="fact"><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/facts}}</dl>{{/hasFacts}}
+      {{#hasPros}}<h4>Good</h4><ul>{{#pros}}<li>{{.}}</li>{{/pros}}</ul>{{/hasPros}}
+      {{#hasCons}}<h4>Watch out</h4><ul>{{#cons}}<li>{{.}}</li>{{/cons}}</ul>{{/hasCons}}
+      <label class="choice"><input type="radio" name="pick" value="{{index}}" data-prompt="{{prompt}}" data-label="{{title}}" aria-describedby="opt-{{index}}"><span>{{verb}}</span></label>
+    </li>
+    {{/options}}
+  </ul>
+</section>
+{{>decide}}
+{{>foot}}

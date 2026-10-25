@@ -1,0 +1,197 @@
+#!/usr/bin/env node
+'use strict';
+// One entry point: JSON in (shape, subject, data), one self-contained HTML page out, checked, then opened,
+// served or handed to the agent's Artifact tool. Node built-ins only; no network.
+//
+//   node scripts/render <input.json | -> [--out FILE] [--target auto|browser|serve|artifact|path]
+//                       [--wait] [--timeout SEC] [--open | --no-open] [--no-check]
+//
+// stdout is line-oriented ("page: ...", "opened: ...", "url: ...", "decision: ...") so an agent can read it.
+// Exit codes: 0 ok, 2 bad input, 3 the page failed the floor check (written, not opened), 4 --wait timed out.
+const { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } = require('node:fs');
+const { join, resolve, dirname } = require('node:path');
+const { tmpdir, hostname } = require('node:os');
+const { spawn } = require('node:child_process');
+const { build, InputError } = require('./lib/shapes');
+const { renderTemplate } = require('./lib/template');
+const { financeConvention } = require('./lib/semantics');
+const { slug } = require('./lib/text');
+const host = require('./lib/host');
+
+const ASSETS = join(__dirname, '..', 'assets');
+const TARGETS = ['auto', 'browser', 'serve', 'artifact', 'path'];
+
+function renderPage(input, { now = new Date() } = {}) {
+  const locale = typeof input.locale === 'string' && input.locale ? input.locale : 'en-US';
+  const fmt = (o) => { try { return new Intl.DateTimeFormat(locale, o).format(now); } catch { return now.toISOString(); } };
+  const ctx = {
+    locale,
+    clock: fmt({ hour: '2-digit', minute: '2-digit' }),
+    liveSeconds: Math.max(2, Math.min(60, Number(input.data && input.data.refresh_seconds) || 5)),
+  };
+  const shapeView = build(input, ctx);
+  const finance = input.finance === 'red-up' || input.finance === 'green-up' ? input.finance : financeConvention(input.finance_locale || locale);
+  const view = {
+    shape: input.shape,
+    subject: input.subject.trim(),
+    question: input.question || '',
+    summary: input.summary || '',
+    description: input.question || input.summary || input.subject,
+    source: input.source || '',
+    lang: (input.lang || locale).split(/[-_]/)[0].toLowerCase(),
+    finance,
+    liveSeconds: '',
+    generated: fmt({ dateStyle: 'medium', timeStyle: 'short' }),
+    generatedIso: now.toISOString(),
+    css: readFileSync(join(ASSETS, 'theme.css'), 'utf8').trim(),
+    js: readFileSync(join(ASSETS, 'page.js'), 'utf8').trim(),
+    ...shapeView,
+  };
+  return { html: renderTemplate(input.shape, view), view };
+}
+
+function parseArgs(argv) {
+  const o = { input: null, out: null, target: 'auto', wait: false, timeout: 1800, open: null, check: true };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--out') o.out = argv[++i];
+    else if (a === '--target') o.target = argv[++i];
+    else if (a === '--serve') o.target = 'serve';
+    else if (a === '--wait') o.wait = true;
+    else if (a === '--timeout') o.timeout = Number(argv[++i]);
+    else if (a === '--open') o.open = true;
+    else if (a === '--no-open') o.open = false;
+    else if (a === '--no-check') o.check = false;
+    else if (a === '-h' || a === '--help') o.help = true;
+    else if (a.startsWith('--')) throw new InputError([`unknown flag ${a}`]);
+    else o.input = a;
+  }
+  if (!TARGETS.includes(o.target)) throw new InputError([`--target must be one of ${TARGETS.join(', ')}`]);
+  if (o.wait && o.target === 'auto') o.target = 'serve';
+  return o;
+}
+
+const say = (k, v) => process.stdout.write(`${k}: ${v}\n`);
+
+async function waitForFile(file, ms) {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    if (existsSync(file)) { try { return JSON.parse(readFileSync(file, 'utf8')); } catch { /* still being written */ } }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return null;
+}
+
+async function main(argv) {
+  let opts;
+  try { opts = parseArgs(argv); } catch (e) { console.error(`render: ${e.message}`); return 2; }
+  if (opts.help || !opts.input) {
+    console.log(readFileSync(__filename, 'utf8').split('\n').slice(2, 11).map((l) => l.replace(/^\/\/ ?/, '')).join('\n'));
+    return opts.help ? 0 : 2;
+  }
+  let input;
+  try {
+    input = JSON.parse(opts.input === '-' ? readFileSync(0, 'utf8') : readFileSync(opts.input, 'utf8'));
+  } catch (e) {
+    console.error(`render: could not read JSON from ${opts.input}: ${e.message}`);
+    return 2;
+  }
+  let html;
+  try { ({ html } = renderPage(input)); } catch (e) {
+    if (e instanceof InputError) { console.error(`render: the input needs fixing:\n- ${e.problems.join('\n- ')}`); return 2; }
+    throw e;
+  }
+
+  const dir = opts.out ? dirname(resolve(opts.out)) : process.env.IUA_OUT_DIR || join(tmpdir(), 'intelligent-ui-anything');
+  const file = opts.out ? resolve(opts.out) : join(dir, `${slug(input.id || input.subject)}.html`);
+  const existed = existsSync(file);
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(file, html);
+  } catch (e) {
+    console.error(`render: could not write ${file}: ${e.message}. Pass --out with a writable path (the current folder works in most sandboxes).`);
+    return 2;
+  }
+  const rows = input.data && (input.data.rows || input.data.options || input.data.sections || input.data.items || []);
+  say('page', file);
+  say('shape', `${input.shape}, ${Array.isArray(rows) ? rows.length : 0} ${input.shape === 'choose' ? 'options' : input.shape === 'explain' ? 'sections' : input.shape === 'compare' ? 'rows' : 'items'}, ${Math.round(html.length / 1024)} KB`);
+
+  if (opts.check) {
+    const { checkPage, report } = require('./check');
+    const res = checkPage(html, { data: input, locale: input.locale });
+    const passed = res.rules.filter((r) => r.ok).length;
+    if (!res.ok) {
+      say('check', 'FAIL, so the page was not opened. Fix the input (usually the wording) and render again.');
+      console.log(report('details', res));
+      return 3;
+    }
+    say('check', `pass (floor ${passed}/${res.rules.length}, lint ${res.lint.fails.length} FAIL ${res.lint.reflex.length} REFLEX ${res.lint.warns.length} WARN)`);
+  }
+
+  const h = host.detect();
+  const auto = host.choose(h);
+  const target = opts.target === 'auto' ? auto.target : opts.target;
+  const live = /<meta name="iua-live" content="\d+">/.test(html);
+  const shouldOpen = opts.open != null ? opts.open : !(existed && live);
+
+  if (target === 'artifact') {
+    say('next', 'publish this file with your Artifact tool. Inside an artifact the pick returns by the Copy button.');
+    return 0;
+  }
+  if (target === 'path') {
+    say('opened', `no (${opts.target === 'auto' ? auto.why : 'asked for the path only'})`);
+    say('next', `give the user this path to open in a browser: ${file}`);
+    return 0;
+  }
+  if (target === 'browser') {
+    if (!shouldOpen) { say('opened', existed && live ? 'already open; the page reloads itself while it is live' : 'no (--no-open)'); return 0; }
+    const r = await host.openInBrowser(file, h);
+    say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`);
+    if (!r.ok) say('next', `give the user this path to open in a browser: ${file}`);
+    return 0;
+  }
+
+  // serve: the pick can come straight back to this session.
+  const decisionFile = `${file}.decision.json`;
+  rmSync(decisionFile, { force: true });
+  const openIt = shouldOpen && !h.remote && !h.sandboxed && h.display;
+  if (opts.wait) {
+    const { startServer } = require('./lib/server');
+    let timer;
+    let srv = null;
+    const done = new Promise((res) => {
+      startServer({ page: file, decisionFile, idleSeconds: opts.timeout, onDecision: (d) => res(d) }).then(async (s) => {
+        srv = s.server;
+        srv.on('idle-exit', () => res(null));
+        say('url', s.url);
+        if (h.remote) say('tunnel', `on your own computer run: ssh -L ${s.port}:127.0.0.1:${s.port} ${hostname()} then open the url`);
+        if (openIt) { const r = await host.openInBrowser(s.url, h); say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`); }
+        say('waiting', `for the user's pick (up to ${opts.timeout}s); it also lands in ${decisionFile}`);
+        timer = setTimeout(() => res(null), opts.timeout * 1000);
+      }, (e) => { console.error(`render: could not start the server: ${e.message}`); res(null); });
+    });
+    const d = await done;
+    clearTimeout(timer);
+    if (srv) { srv.close(); if (srv.closeAllConnections) srv.closeAllConnections(); }
+    if (!d) { say('decision', 'none (timed out). Ask the user, or tell them to use the Copy button.'); return 4; }
+    say('decision', d.prompt.replace(/\n/g, '\n  '));
+    return 0;
+  }
+  const ready = `${file}.serve.json`;
+  rmSync(ready, { force: true });
+  const child = spawn(process.execPath, [join(__dirname, 'serve'), file, '--ready', ready, '--idle', String(opts.timeout), '--decision', decisionFile, '--no-open'], { detached: true, stdio: 'ignore' });
+  child.unref();
+  const info = await waitForFile(ready, 5000);
+  if (!info) { say('served', 'no, the server did not start'); say('next', `give the user this path: ${file}`); return 0; }
+  say('url', info.url);
+  if (h.remote) say('tunnel', `on your own computer run: ssh -L ${info.port}:127.0.0.1:${info.port} ${hostname()} then open the url`);
+  if (openIt) { const r = await host.openInBrowser(info.url, h); say('opened', r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`); }
+  say('decision', `when the user presses Send it is written to ${decisionFile}; the server stops after ${opts.timeout}s idle (pid ${info.pid})`);
+  return 0;
+}
+
+if (require.main === module) {
+  main(process.argv.slice(2)).then((code) => { process.exitCode = code; }, (e) => { console.error(`render: ${e.stack || e.message}`); process.exitCode = 1; });
+}
+
+module.exports = { renderPage };

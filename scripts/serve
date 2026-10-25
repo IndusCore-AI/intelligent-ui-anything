@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+'use strict';
+// The decision return. Serves one rendered page on 127.0.0.1 under a random path and waits for the user's pick.
+//
+//   node scripts/serve <page.html> [--wait] [--timeout SEC] [--idle SEC] [--port N] [--decision FILE] [--no-open]
+//
+// --wait prints "decision: <line>" and exits as soon as the user presses Send (exit 4 if --timeout passes first).
+// Without --wait it keeps serving and writes each pick to the decision file (default <page>.decision.json),
+// then stops after --idle seconds without a request (default 1800). Nothing is reachable from another machine.
+const { existsSync, writeFileSync, rmSync, renameSync } = require('node:fs');
+const { resolve } = require('node:path');
+const { hostname } = require('node:os');
+const { startServer } = require('./lib/server');
+const host = require('./lib/host');
+
+async function main(argv) {
+  const o = { page: null, wait: false, timeout: 0, idle: 1800, port: 0, decision: null, open: true, ready: null };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--wait') o.wait = true;
+    else if (a === '--timeout') o.timeout = Number(argv[++i]);
+    else if (a === '--idle') o.idle = Number(argv[++i]);
+    else if (a === '--port') o.port = Number(argv[++i]);
+    else if (a === '--decision') o.decision = argv[++i];
+    else if (a === '--no-open') o.open = false;
+    else if (a === '--ready') o.ready = argv[++i];
+    else if (a === '-h' || a === '--help') { console.log('usage: node scripts/serve <page.html> [--wait] [--timeout SEC] [--idle SEC] [--port N] [--decision FILE] [--no-open]'); return 0; }
+    else if (a.startsWith('--')) { console.error(`serve: unknown flag ${a}`); return 2; }
+    else o.page = resolve(a);
+  }
+  if (!o.page || !existsSync(o.page)) { console.error('serve: name a rendered page that exists'); return 2; }
+  const decisionFile = resolve(o.decision || `${o.page}.decision.json`);
+  rmSync(decisionFile, { force: true });
+  const h = host.detect();
+  let srv = null;
+  const code = await new Promise((done) => {
+    startServer({
+      page: o.page,
+      port: o.port,
+      decisionFile,
+      idleSeconds: o.idle,
+      log: (m) => console.log(`serve: ${m}`),
+      onDecision: (d) => {
+        console.log(`decision: ${d.prompt.replace(/\n/g, '\n  ')}`);
+        if (o.wait) done(0);
+      },
+    }).then(async (s) => {
+      srv = s.server;
+      console.log(`url: ${s.url}`);
+      console.log(`decision file: ${decisionFile}`);
+      if (h.remote) console.log(`tunnel: on your own computer run: ssh -L ${s.port}:127.0.0.1:${s.port} ${hostname()} then open the url`);
+      if (o.ready) { writeFileSync(`${o.ready}.tmp`, JSON.stringify({ url: s.url, port: s.port, pid: process.pid })); renameSync(`${o.ready}.tmp`, o.ready); }
+      if (o.open && !h.remote && !h.sandboxed && h.display) {
+        const r = await host.openInBrowser(s.url, h);
+        console.log(`opened: ${r.ok ? `yes, with ${r.how}` : `no, ${r.how} failed: ${r.error}`}`);
+      }
+      s.server.on('idle-exit', () => done(o.wait ? 4 : 0));
+      if (o.wait && o.timeout > 0) setTimeout(() => { console.log('decision: none (timed out)'); done(4); }, o.timeout * 1000).unref();
+    }, (e) => { console.error(`serve: could not start: ${e.message}`); done(1); });
+  });
+  if (srv) { srv.close(); if (srv.closeAllConnections) srv.closeAllConnections(); }
+  return code;
+}
+
+main(process.argv.slice(2)).then((code) => { process.exitCode = code; });

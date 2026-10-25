@@ -1,0 +1,11 @@
+<section class="decide" data-decide data-head="{{decide.head}}" aria-labelledby="decide-h">
+  <h2 id="decide-h" class="visually-hidden">{{decide.title}}</h2>
+  <output class="decide-out" data-empty data-empty-text="{{decide.empty}}" aria-live="polite">{{decide.empty}}</output>
+  <div class="decide-actions">
+    <button type="button" class="btn btn-primary" data-copy disabled>Copy for the agent</button>
+    <button type="button" class="btn" data-send hidden disabled>Send to the agent</button>
+  </div>
+  {{#decide.note}}<details class="decide-more"><summary>Add a note</summary><label class="decide-note">Note for the agent <input type="text" maxlength="600" autocomplete="off"></label></details>{{/decide.note}}
+  <p class="decide-status" role="status"></p>
+  <noscript><p class="decide-status">Scripts are off, so the copy button cannot work. Tell the agent which one you picked.</p></noscript>
+</section>

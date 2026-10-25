@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{lang}}" data-finance="{{finance}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="iua-endpoint" content="">
+<meta name="iua-version" content="">
+<meta name="iua-live" content="{{liveSeconds}}">
+<title>{{subject}}</title>
+<meta name="description" content="{{description}}">
+<style>
+{{{css}}}
+</style>
+</head>
+<body data-shape="{{shape}}">
+<div class="page">
+<header class="page-head">
+  <div class="page-head-text">
+    <h1>{{subject}}</h1>
+    {{#question}}<p class="question">{{question}}</p>{{/question}}
+    {{#summary}}<p class="summary">{{summary}}</p>{{/summary}}
+  </div>
+  <div class="theme-switch seg" role="group" aria-label="Colour theme" hidden>
+    <button type="button" data-theme-choice="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+  </div>
+</header>
+<main id="main">

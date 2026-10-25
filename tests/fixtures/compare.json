@@ -1,0 +1,23 @@
+{
+  "shape": "compare",
+  "subject": "Test fixture: three build tools",
+  "question": "Which build tool should the fixture project use?",
+  "source": "Test fixture written for the check; not real measurements",
+  "data": {
+    "columns": [
+      { "key": "name", "label": "Tool" },
+      { "key": "cold_s", "label": "Cold build", "unit": "s", "better": "lower" },
+      { "key": "rating", "label": "Docs", "type": "rating", "max": 5, "better": "higher" },
+      { "key": "status", "label": "CI" },
+      { "key": "licence", "label": "Licence", "type": "tag" },
+      { "key": "change", "label": "Size change", "type": "change" }
+    ],
+    "rows": [
+      { "name": "Alpha", "cold_s": 12.5, "rating": 4, "status": "pass", "licence": "MIT", "change": "+3%" },
+      { "name": "Beta", "cold_s": 8, "rating": 3, "status": "fail", "licence": "Apache-2.0", "change": "-2%" },
+      { "name": "Gamma", "cold_s": null, "rating": 5, "status": "flaky", "licence": "MIT", "change": "0%" }
+    ],
+    "chart": { "value": "cold_s", "title": "Cold build in seconds" },
+    "pick": { "prompt": "Use {name} for the fixture project", "verb": "Use" }
+  }
+}
