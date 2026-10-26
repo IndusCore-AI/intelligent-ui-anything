@@ -99,7 +99,7 @@ test('compare: picks, best values, blanks and chart colour', () => {
   const v = build(fixture('compare'), ctx);
   assert.equal(v.rows[1].pickPrompt, 'Use Beta for the fixture project');
   const cold = v.rows.map((r) => r.cells[1].html);
-  assert.match(cold[1], /lowest/);
+  assert.match(cold[1], /class="badge best"/);
   assert.match(cold[2], /not given/);
   assert.equal(v.chart.bars[2].blank, true);
   assert.ok(v.chart.bars.every((b) => b.sem === 'sem-series'), 'a measure is not painted with the CI status');

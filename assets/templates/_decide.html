@@ -2,8 +2,8 @@
   <h2 id="decide-h" class="visually-hidden">{{decide.title}}</h2>
   <output class="decide-out" data-empty data-empty-text="{{decide.empty}}" aria-live="polite">{{decide.empty}}</output>
   <div class="decide-actions">
-    <button type="button" class="btn btn-primary" data-copy disabled>Copy for the agent</button>
-    <button type="button" class="btn" data-send hidden disabled>Send to the agent</button>
+    <button type="button" class="btn btn-primary" data-copy disabled><svg class="i i-sm" aria-hidden="true"><use href="#i-copy"/></svg><span data-text>Copy for the agent</span></button>
+    <button type="button" class="btn" data-send hidden disabled><svg class="i i-sm" aria-hidden="true"><use href="#i-send"/></svg><span data-text>Send to the agent</span></button>
   </div>
   {{#decide.note}}<details class="decide-more"><summary>Add a note</summary><label class="decide-note">Note for the agent <input type="text" maxlength="600" autocomplete="off"></label></details>{{/decide.note}}
   <p class="decide-status" role="status"></p>

@@ -64,36 +64,40 @@ function compare(input, ctx) {
     const align = type === 'number' || type === 'rating' || type === 'change' ? 'num' : '';
     return {
       index, key: c.key, label: c.label || titleCase(String(c.key).replace(/_/g, ' ')), unit: c.unit || '', type, palette,
-      max: c.max, better, best, align,
+      max: c.max, better, best, align, best_label: c.best_label ? str(c.best_label) : '',
       sortType: type === 'number' || type === 'rating' || type === 'change' ? 'number' : 'text',
       firstDir: better === 'lower' ? 'ascending' : type === 'number' || type === 'rating' ? 'descending' : 'ascending',
     };
   });
   if (problems.length) throw new InputError(problems);
 
+  // A small check badge marks the best value in a column the agent said has a better direction.
+  const BEST_HIDDEN = '<span class="visually-hidden">, best</span>';
+  const best = (html) => `<span class="badge best"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>${html}</span>${BEST_HIDDEN}`;
   const cell = (col, v) => {
     if (isBlank(v)) return { html: '<span class="blank">not given</span>', sort: '' };
     if (col.type === 'number') {
       const n = Number(v);
-      const html = esc(numeric(v) && typeof v === 'number' ? fmtNumber(v, ctx.locale) : v) + (col.best != null && n === col.best ? `<span class="best">${col.better === 'lower' ? 'lowest' : 'highest'}</span>` : '');
+      const shown = esc(numeric(v) && typeof v === 'number' ? fmtNumber(v, ctx.locale) : v);
+      const html = col.best != null && n === col.best ? best(shown) : shown;
       return { html, sort: numeric(v) ? String(n) : '' };
     }
     if (col.type === 'rating') {
       const n = Number(v), m = Number(col.max);
       const share = m > 0 ? Math.max(0, Math.min(1, n / m)) : 0;
       return {
-        html: `<span class="rating">${esc(v)}<span class="unit">of ${esc(col.max)}</span><span class="rating-track" aria-hidden="true"><span class="rating-fill" style="--share: ${share.toFixed(3)}"></span></span></span>${col.best != null && n === col.best ? `<span class="best">${col.better === 'lower' ? 'lowest' : 'highest'}</span>` : ''}`,
+        html: `<span class="rating">${esc(v)}<span class="unit">of ${esc(col.max)}</span><span class="rating-track" aria-hidden="true"><span class="rating-fill" style="--share: ${share.toFixed(3)}"></span></span></span>${col.best != null && n === col.best ? BEST_HIDDEN : ''}`,
         sort: numeric(v) ? String(n) : '',
       };
     }
     if (col.type === 'semantic') {
       const key = sem.keyFor(col.palette, str(v)) || 'plain';
-      return { html: `<span class="cell-sem sem-${key}"><span class="swatch" aria-hidden="true"></span>${esc(str(v))}</span>`, sort: str(v) };
+      return { html: `<span class="badge cell-sem sem-${key}"><span class="swatch" aria-hidden="true"></span>${esc(str(v))}</span>`, sort: str(v) };
     }
     if (col.type === 'change') {
       const dir = sem.direction(v);
       const n = parseFloat(String(v).replace(/[^\d.+-]/g, ''));
-      return { html: `<span class="cell-sem fin-${dir}"><span class="swatch" aria-hidden="true"></span>${esc(str(v))}</span>`, sort: isFinite(n) ? String(dir === 'down' ? -Math.abs(n) : n) : '' };
+      return { html: `<span class="badge cell-sem fin-${dir}"><span class="swatch" aria-hidden="true"></span>${esc(str(v))}</span>`, sort: isFinite(n) ? String(dir === 'down' ? -Math.abs(n) : n) : '' };
     }
     if (col.type === 'tag') {
       const list = Array.isArray(v) ? v : [v];
@@ -111,10 +115,11 @@ function compare(input, ctx) {
   const pickIn = d.pick === true ? {} : isObj(d.pick) ? d.pick : null;
   const first = columns[0];
   const rows = d.rows.map((r, i) => {
-    const cells = columns.map((col, ci) => ({ ...cell(col, r[col.key]), align: col.align, head: ci === 0 }));
+    const cells = columns.map((col, ci) => ({ ...cell(col, r[col.key]), align: col.align, head: ci === 0, ci, label: col.unit ? `${col.label} (${col.unit})` : col.label }));
     const label = str(r[first.key]);
     return {
       index: i,
+      stagger: Math.min(i, 12) + 3,
       text: columns.map((c) => str(r[c.key])).join(' '),
       cells,
       pickPrompt: pickIn ? fill(pickIn.prompt || `${pickIn.verb || 'Use'} {${first.key}}`, r) : '',
@@ -140,7 +145,8 @@ function compare(input, ctx) {
         chart = {
           title: ch.title || `${vcol.label}${vcol.unit ? ` (${vcol.unit})` : ''}`,
           note: ch.note || '',
-          bars: d.rows.map((r) => ({
+          bars: d.rows.map((r, bi) => ({
+            i: Math.min(bi, 12),
             label: str(r[lcol.key]),
             value: isBlank(r[vcol.key]) ? 'not given' : typeof r[vcol.key] === 'number' ? fmtNumber(r[vcol.key], ctx.locale) : str(r[vcol.key]),
             unit: isBlank(r[vcol.key]) ? '' : ch.unit != null ? ch.unit : vcol.unit,
@@ -154,13 +160,30 @@ function compare(input, ctx) {
   }
   if (problems.length) throw new InputError(problems);
 
+  // The leaders at a glance: for each column with a better direction, its best value and who holds it.
+  // Every figure is a value from the rows; nothing is computed beyond picking the maximum or minimum.
+  const highlights = d.highlights === false || rows.length < 3 ? [] : columns.filter((c) => c.best != null).slice(0, 3).map((c, hi) => {
+    const holders = d.rows.filter((r) => numeric(r[c.key]) && Number(r[c.key]) === c.best).map((r) => str(r[first.key]));
+    return {
+      i: hi,
+      icon: c.better === 'lower' ? 'down' : 'up',
+      label: c.best_label || `${c.better === 'lower' ? 'Lowest' : 'Highest'} ${c.label}`,
+      value: fmtNumber(c.best, ctx.locale),
+      unit: c.unit,
+      who: holders.length > 3 ? `${holders.slice(0, 3).join(', ')} and others` : holders.join(', '),
+    };
+  });
+
   return {
+    highlights,
+    hasHighlights: highlights.length > 0,
     columns,
     rows,
     rowCount: rows.length,
     tableLabel: d.table_label || `${input.subject}, as a table`,
     chart,
     notes: (Array.isArray(d.notes) ? d.notes : d.notes ? [d.notes] : []).map((n) => typo(str(n))),
+    hasNotes: !!(Array.isArray(d.notes) ? d.notes.length : d.notes),
     pick: pickIn ? { header: pickIn.header || 'Pick' } : null,
     decide: { title: 'Your pick', empty: 'Nothing picked yet. Pick a row.', head: '', note: pickIn ? pickIn.note !== false : false },
   };
@@ -215,7 +238,7 @@ function explain(input) {
     };
   });
   if (problems.length) throw new InputError(problems);
-  const changes = sections.filter((s) => s.change).map((s) => ({ id: s.id, title: s.title, label: s.change, note: s.note, sem: s.sem }));
+  const changes = sections.filter((s) => s.change).map((s) => ({ id: s.id, title: s.title, label: s.change, labelTitle: titleCase(s.change), note: s.note, sem: s.sem }));
   return { sections, changes, hasChanges: changes.length > 0 };
 }
 
@@ -237,7 +260,7 @@ function track(input, ctx) {
   const groups = [];
   for (const it of items) {
     let g = groups.find((x) => x.title === it.group);
-    if (!g) groups.push((g = { title: it.group, label: it.group || 'Steps', items: [] }));
+    if (!g) groups.push((g = { i: groups.length + 1, title: it.group, label: it.group || 'Steps', items: [] }));
     g.items.push(it);
   }
   const done = items.filter((i) => i.statusKey === 'pass').length;
@@ -290,9 +313,9 @@ function inspect(input) {
   });
   if (problems.length) throw new InputError(problems);
   const lanes = lanesIn.map((l) => ({ key: slug(l.key, 24), rawKey: l.key, label: l.label || LANE_LABEL[l.key] || titleCase(String(l.key)) }));
-  const laneSections = lanes.map((l) => {
+  const laneSections = lanes.map((l, li) => {
     const its = items.filter((it) => it.lane === l.rawKey).map((it) => ({ ...it, lane: l.key }));
-    return { ...l, items: its, count: its.length, hasTime: its.some((it) => it.at), emptyText: `Nothing under ${l.label.toLowerCase()}.` };
+    return { ...l, i: li, items: its, count: its.length, hasTime: its.some((it) => it.at), emptyText: `Nothing under ${l.label.toLowerCase()}.` };
   });
   const sevs = SEV_ORDER.filter((k) => items.some((it) => it.severity === k)).map((k) => ({ key: k, label: titleCase(k), sem: `sem-${k}` }));
   const sources = [...new Set(items.map((it) => it.source).filter(Boolean))];

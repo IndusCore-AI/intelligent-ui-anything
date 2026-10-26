@@ -3,13 +3,16 @@
   <h2 id="options-h" class="visually-hidden">Options</h2>
   <ul class="option-grid">
     {{#options}}
-    <li class="option">
-      <h3 class="option-title" id="opt-{{index}}">{{title}}</h3>
-      {{#recommended}}<p class="recommend"><strong>Recommended.</strong>{{#why}} {{why}}{{/why}}</p>{{/recommended}}
-      {{#summary}}<p class="option-summary">{{summary}}</p>{{/summary}}
+    <li class="card option rise" style="--i: {{index}}">
+      <div class="option-top">
+        {{#recommended}}<p class="recommend"><span class="chip"><svg class="i i-sm" aria-hidden="true"><use href="#i-star"/></svg>Recommended</span></p>{{/recommended}}
+        <h3 class="option-title" id="opt-{{index}}">{{title}}</h3>
+        {{#summary}}<p class="option-summary">{{summary}}</p>{{/summary}}
+        {{#recommended}}{{#why}}<p class="recommend-why">{{why}}</p>{{/why}}{{/recommended}}
+      </div>
       {{#hasFacts}}<dl class="facts">{{#facts}}<div class="fact"><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/facts}}</dl>{{/hasFacts}}
-      {{#hasPros}}<h4>Good</h4><ul>{{#pros}}<li>{{.}}</li>{{/pros}}</ul>{{/hasPros}}
-      {{#hasCons}}<h4>Watch out</h4><ul>{{#cons}}<li>{{.}}</li>{{/cons}}</ul>{{/hasCons}}
+      {{#hasPros}}<div class="points pros"><h4>Good</h4><ul>{{#pros}}<li><svg class="i i-sm" aria-hidden="true"><use href="#i-check"/></svg><span>{{.}}</span></li>{{/pros}}</ul></div>{{/hasPros}}
+      {{#hasCons}}<div class="points cons"><h4>Watch out</h4><ul>{{#cons}}<li><svg class="i i-sm" aria-hidden="true"><use href="#i-alert"/></svg><span>{{.}}</span></li>{{/cons}}</ul></div>{{/hasCons}}
       <label class="choice"><input type="radio" name="pick" value="{{index}}" data-prompt="{{prompt}}" data-label="{{title}}" aria-describedby="opt-{{index}}"><span>{{verb}}</span></label>
     </li>
     {{/options}}

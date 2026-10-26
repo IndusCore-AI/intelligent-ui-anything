@@ -1,45 +1,56 @@
 {{>head}}
+{{#hasHighlights}}
+<ul class="highlights" aria-label="Leaders">
+  {{#highlights}}<li class="card stat rise" style="--i: {{i}}">
+    <p class="stat-label"><svg class="i i-sm" aria-hidden="true"><use href="#i-{{icon}}"/></svg>{{label}}</p>
+    <p class="stat-value">{{value}}{{#unit}} <span class="unit">{{unit}}</span>{{/unit}}</p>
+    <p class="stat-who">{{who}}</p>
+  </li>{{/highlights}}
+</ul>
+{{/hasHighlights}}
 {{#chart}}
-<section class="chart" aria-labelledby="chart-h">
-  <h2 id="chart-h">{{chart.title}}</h2>
-  <ol class="bars">
-    {{#chart.bars}}
-    <li class="bar-row {{sem}}">
-      <span class="bar-label"><span class="swatch" aria-hidden="true"></span>{{label}}</span>
-      <span class="bar-track" aria-hidden="true">{{^blank}}<span class="bar" style="--share: {{share}}"></span>{{/blank}}</span>
-      <span class="bar-value">{{#blank}}<span class="blank">{{value}}</span>{{/blank}}{{^blank}}{{value}}{{#unit}} <span class="unit">{{unit}}</span>{{/unit}}{{/blank}}</span>
-    </li>
-    {{/chart.bars}}
-  </ol>
-  {{#chart.note}}<p class="chart-note">{{chart.note}}</p>{{/chart.note}}
+<section class="card chart rise" style="--i: 1" aria-labelledby="chart-h">
+  <div class="card-head"><h2 id="chart-h">{{chart.title}}</h2></div>
+  <div class="card-body">
+    <ol class="bars">
+      {{#chart.bars}}
+      <li class="bar-row {{sem}}">
+        <span class="bar-label"><span class="swatch" aria-hidden="true"></span>{{label}}</span>
+        <span class="bar-track" aria-hidden="true">{{^blank}}<span class="bar" style="--share: {{share}}; --i: {{i}}"></span>{{/blank}}</span>
+        <span class="bar-value">{{#blank}}<span class="blank">{{value}}</span>{{/blank}}{{^blank}}{{value}}{{#unit}} <span class="unit">{{unit}}</span>{{/unit}}{{/blank}}</span>
+      </li>
+      {{/chart.bars}}
+    </ol>
+  </div>
+  {{#chart.note}}<div class="notes"><p class="note"><svg class="i i-sm" aria-hidden="true"><use href="#i-info"/></svg><span>{{chart.note}}</span></p></div>{{/chart.note}}
 </section>
 {{/chart}}
-<section class="matrix" aria-labelledby="matrix-h">
+<section class="card matrix rise" style="--i: 2" aria-labelledby="matrix-h">
   <h2 id="matrix-h" class="visually-hidden">{{tableLabel}}</h2>
   <div class="toolbar" data-toolbar hidden>
-    <label class="search">Filter <input type="search" data-filter placeholder="Type to narrow the rows" autocomplete="off"></label>
+    <label class="search"><svg class="i i-sm" aria-hidden="true"><use href="#i-search"/></svg><span class="visually-hidden">Filter</span><input type="search" data-filter placeholder="Filter rows" autocomplete="off"></label>
     <p class="count-line" aria-live="polite"><span data-count data-derived>{{rowCount}}</span> of <span data-derived>{{rowCount}}</span> shown</p>
   </div>
   <p class="visually-hidden" data-sort-status aria-live="polite"></p>
   <div class="table-wrap" role="region" aria-label="{{tableLabel}}" tabindex="0">
-    <table data-sortable>
+    <table data-sortable{{#pick}} data-pickable{{/pick}}>
       <thead>
         <tr>
-          {{#columns}}<th scope="col" class="{{align}}" aria-sort="none"><button type="button" class="sort" data-col="{{index}}" data-type="{{sortType}}" data-first="{{firstDir}}" data-label="{{label}}">{{label}}{{#unit}} <span class="unit">({{unit}})</span>{{/unit}}<span class="dir" aria-hidden="true"></span></button></th>{{/columns}}
           {{#pick}}<th scope="col" class="pick-col"><span class="visually-hidden">{{pick.header}}</span></th>{{/pick}}
+          {{#columns}}<th scope="col" class="{{align}}" aria-sort="none"><button type="button" class="sort-btn" data-col="{{index}}" data-type="{{sortType}}" data-first="{{firstDir}}" data-label="{{label}}">{{label}}{{#unit}} <span class="unit">({{unit}})</span>{{/unit}}<span class="dir" aria-hidden="true"></span></button></th>{{/columns}}
         </tr>
       </thead>
       <tbody>
         {{#rows}}
-        <tr data-row data-item data-text="{{text}}">
-          {{#cells}}{{#head}}<th scope="row" class="{{align}}" data-sort="{{sort}}">{{{html}}}</th>{{/head}}{{^head}}<td class="{{align}}" data-sort="{{sort}}">{{{html}}}</td>{{/head}}{{/cells}}
-          {{#pickPrompt}}<td class="pick-col"><label class="choice"><input type="radio" name="pick" value="{{index}}" data-prompt="{{pickPrompt}}" data-label="{{pickLabel}}"><span>{{pickVerb}}</span><span class="visually-hidden"> {{pickLabel}}</span></label></td>{{/pickPrompt}}
+        <tr data-row data-item data-text="{{text}}" class="rise" style="--i: {{stagger}}">
+          {{#pickPrompt}}<td class="pick-col"><label class="choice"><input type="radio" name="pick" value="{{index}}" data-prompt="{{pickPrompt}}" data-label="{{pickLabel}}"><span class="visually-hidden">{{pickVerb}} {{pickLabel}}</span></label></td>{{/pickPrompt}}
+          {{#cells}}{{#head}}<th scope="row" class="{{align}}" data-c="{{ci}}" data-sort="{{sort}}">{{{html}}}</th>{{/head}}{{^head}}<td class="{{align}}" data-c="{{ci}}" data-label="{{label}}" data-sort="{{sort}}">{{{html}}}</td>{{/head}}{{/cells}}
         </tr>
         {{/rows}}
       </tbody>
     </table>
   </div>
-  {{#notes}}<p class="chart-note">{{.}}</p>{{/notes}}
+  {{#hasNotes}}<div class="notes">{{#notes}}<p class="note"><svg class="i i-sm" aria-hidden="true"><use href="#i-info"/></svg><span>{{.}}</span></p>{{/notes}}</div>{{/hasNotes}}
 </section>
 {{#pick}}{{>decide}}{{/pick}}
 {{>foot}}

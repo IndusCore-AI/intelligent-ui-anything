@@ -1,6 +1,9 @@
 {{>head}}
+<ul class="overview" aria-label="Overview">
+  {{#laneSections}}<li class="card stat rise" style="--i: {{i}}"><a href="#lane-{{key}}"><span class="stat-label">{{label}}</span><span class="stat-value" data-derived>{{count}}</span></a></li>{{/laneSections}}
+</ul>
 <div class="toolbar" data-toolbar hidden>
-  <label class="search">Filter <input type="search" data-filter placeholder="Type to narrow the list" autocomplete="off"></label>
+  <label class="search"><svg class="i i-sm" aria-hidden="true"><use href="#i-search"/></svg><span class="visually-hidden">Filter</span><input type="search" data-filter placeholder="Filter the list" autocomplete="off"></label>
   <div class="chips" role="group" aria-label="Show sections">
     {{#lanes}}<button type="button" class="chip-btn" data-facet="lane" data-value="{{key}}" aria-pressed="true">{{label}}</button>{{/lanes}}
   </div>
@@ -11,8 +14,8 @@
   <p class="count-line" aria-live="polite"><span data-count data-derived>{{itemCount}}</span> of <span data-derived>{{itemCount}}</span> shown</p>
 </div>
 {{#laneSections}}
-<section class="lane" id="lane-{{key}}" data-lane-section="{{key}}" aria-labelledby="lane-{{key}}-h">
-  <h2 id="lane-{{key}}-h">{{label}} (<span data-lane-count data-derived>{{count}}</span>)</h2>
+<section class="card lane rise" style="--i: {{i}}" id="lane-{{key}}" data-lane-section="{{key}}" aria-labelledby="lane-{{key}}-h">
+  <div class="card-head"><h2 id="lane-{{key}}-h">{{label}}</h2><span class="count-badge" data-lane-count data-derived>{{count}}</span></div>
   {{^count}}<p class="empty-note">{{emptyText}}</p>{{/count}}
   <ol class="timeline{{^hasTime}} no-time{{/hasTime}}">
     {{#items}}
@@ -21,7 +24,7 @@
       <div class="entry-body">
         <div class="entry-head">
           <h3 class="entry-title">{{title}}</h3>
-          {{#severityLabel}}<span class="tag"><span class="swatch" aria-hidden="true"></span>{{severityLabel}}</span>{{/severityLabel}}
+          {{#severityLabel}}<span class="chip"><span class="swatch" aria-hidden="true"></span>{{severityLabel}}</span>{{/severityLabel}}
         </div>
         {{#detailHtml}}<div class="entry-detail">{{{detailHtml}}}</div>{{/detailHtml}}
         {{#hasMeta}}<dl class="entry-meta">{{#source}}<div><dt>{{sourceLabel}}</dt><dd>{{source}}</dd></div>{{/source}}{{#hasFiles}}<div><dt>Files</dt><dd>{{#files}}<code>{{.}}</code> {{/files}}</dd></div>{{/hasFiles}}</dl>{{/hasMeta}}

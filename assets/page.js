@@ -38,7 +38,7 @@
   // Sorting: header buttons sort rows by each cell's data-sort value.
   $$('table[data-sortable]').forEach(function (table) {
     var tbody = table.tBodies[0];
-    $$('thead .sort', table).forEach(function (btn) {
+    $$('thead .sort-btn', table).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var th = btn.closest('th');
         var idx = Number(btn.getAttribute('data-col'));
@@ -48,7 +48,7 @@
         $$('thead th', table).forEach(function (h) { if (h.hasAttribute('aria-sort')) h.setAttribute('aria-sort', 'none'); });
         th.setAttribute('aria-sort', dir);
         var rows = $$('tr', tbody);
-        var val = function (tr) { var c = tr.children[idx]; return c ? c.getAttribute('data-sort') : ''; };
+        var val = function (tr) { var c = tr.querySelector('[data-c="' + idx + '"]'); return c ? c.getAttribute('data-sort') : ''; };
         rows.sort(function (a, b) {
           var x = val(a), y = val(b);
           var blankX = x === '' || x == null, blankY = y === '' || y == null;
@@ -143,19 +143,56 @@
       var d = current();
       $$('tr[data-row]').forEach(function (tr) { var r = $('input[type="radio"]', tr); if (r && r.checked) tr.setAttribute('data-picked', ''); else tr.removeAttribute('data-picked'); });
       if (d) { out.textContent = d.prompt; out.removeAttribute('data-empty'); } else { out.textContent = out.getAttribute('data-empty-text'); out.setAttribute('data-empty', ''); }
+      if (d) decide.removeAttribute('data-idle'); else decide.setAttribute('data-idle', '');
       copyBtn.disabled = !d;
-      if (sendBtn) sendBtn.disabled = !d;
+      if (sendBtn) sendBtn.disabled = !d || sendBtn.getAttribute('data-state') === 'done';
       copyBtn.removeAttribute('data-state');
+      restore(copyBtn);
+      if (sendBtn && sendBtn.getAttribute('data-state') !== 'done') { sendBtn.removeAttribute('data-state'); restore(sendBtn); }
       status.textContent = '';
     };
-    doc.addEventListener('change', function (e) { if (e.target.matches && e.target.matches('input[type="radio"][data-prompt]')) refresh(); });
+    doc.addEventListener('change', function (e) {
+      if (!(e.target.matches && e.target.matches('input[type="radio"][data-prompt]'))) return;
+      refresh();
+      // Replay the dock's settle so each new pick is felt where the line appears.
+      decide.removeAttribute('data-has-pick');
+      void decide.offsetWidth;
+      if (current()) decide.setAttribute('data-has-pick', '');
+    });
+    // A whole row or option card is the target, not only its small radio.
+    doc.addEventListener('click', function (e) {
+      var host = e.target.closest && e.target.closest('tr[data-row], .option');
+      if (!host || e.target.closest('a, button, input, label, select, summary, textarea')) return;
+      var radio = $('input[type="radio"][data-prompt]', host);
+      if (!radio || radio.disabled || radio.checked) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     if (note) note.addEventListener('input', refresh);
     var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+    // Completion is said on the button itself: its words and icon change, so the result sits where the click was.
+    var label = function (btn, text, icon) {
+      var t = $('[data-text]', btn), u = $('use', btn);
+      if (!btn.hasAttribute('data-rest')) btn.setAttribute('data-rest', t.textContent + '|' + u.getAttribute('href'));
+      t.textContent = text;
+      u.setAttribute('href', icon);
+    };
+    var restore = function (btn) {
+      var rest = btn.getAttribute('data-rest');
+      if (!rest) return;
+      var parts = rest.split('|');
+      label(btn, parts[0], parts[1]);
+    };
     var selectOut = function () { var r = doc.createRange(); r.selectNodeContents(out); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); };
     copyBtn.addEventListener('click', function () {
       var d = current();
       if (!d) return;
-      var ok = function () { copyBtn.setAttribute('data-state', 'done'); status.textContent = 'Copied. Paste it into the agent to carry on.'; };
+      var ok = function () {
+        copyBtn.setAttribute('data-state', 'done');
+        label(copyBtn, 'Copied', '#i-check');
+        status.textContent = 'Copied. Paste it into the agent to carry on.';
+        window.setTimeout(function () { restore(copyBtn); copyBtn.removeAttribute('data-state'); }, 1800);
+      };
       var fail = function () { selectOut(); copyBtn.setAttribute('data-state', 'error'); status.textContent = 'The browser blocked the clipboard. The line is selected: press ' + (mac ? 'Cmd+C' : 'Ctrl+C') + '.'; };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.prompt).then(ok, fail); else fail();
     });
@@ -173,7 +210,7 @@
         status.textContent = 'Sending to the agent.';
         fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: d.prompt, picks: d.picks, note: d.note, subject: doc.title, shape: $('.page').getAttribute('data-shape') }) })
           .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
-          .then(function () { sendBtn.removeAttribute('aria-busy'); sendBtn.setAttribute('data-state', 'done'); status.textContent = 'Sent. The agent has your pick; you can close this tab.'; })
+          .then(function () { sendBtn.removeAttribute('aria-busy'); sendBtn.setAttribute('data-state', 'done'); label(sendBtn, 'Sent', '#i-check'); status.textContent = 'Sent. The agent has your pick; you can close this tab.'; })
           .catch(function () { sendBtn.removeAttribute('aria-busy'); sendBtn.disabled = false; sendBtn.setAttribute('data-state', 'error'); status.textContent = 'Not sent: the local server did not answer. Use Copy instead.'; });
       });
     }

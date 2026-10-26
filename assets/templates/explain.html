@@ -1,26 +1,27 @@
 {{>head}}
 <div class="doc">
-  <nav class="toc" aria-label="Contents">
+  <nav class="card toc rise" aria-label="Contents">
     <details open>
       <summary>Contents</summary>
       <ol>
-        {{#sections}}<li><a href="#{{id}}">{{title}}</a>{{#changeLabel}} <span class="chip {{sem}}"><span class="swatch" aria-hidden="true"></span>{{changeLabel}}</span>{{/changeLabel}}</li>{{/sections}}
+        {{#sections}}<li><a href="#{{id}}"><span>{{title}}</span>{{#changeLabel}}<span class="{{sem}}"><span class="swatch" aria-hidden="true"></span><span class="visually-hidden">{{changeLabel}}</span></span>{{/changeLabel}}</a></li>{{/sections}}
       </ol>
     </details>
   </nav>
   <article class="prose">
     {{#hasChanges}}
-    <section class="changes" aria-labelledby="changes-h">
+    <section class="card changes rise" style="--i: 1" aria-labelledby="changes-h">
       <h2 id="changes-h">What changed</h2>
       <ul>
-        {{#changes}}<li class="{{sem}}"><span class="swatch" aria-hidden="true"></span><span><a href="#{{id}}">{{title}}</a>, {{label}}{{#note}}: {{note}}{{/note}}</span></li>{{/changes}}
+        {{#changes}}<li class="{{sem}}"><span class="chip"><span class="swatch" aria-hidden="true"></span>{{labelTitle}}</span><a href="#{{id}}">{{title}}</a>{{#note}}<span class="note-muted">{{note}}</span>{{/note}}</li>{{/changes}}
       </ul>
-      <div class="view-switch seg" role="group" aria-label="What to show" hidden>
+      <div class="view-switch toggle-group" role="group" aria-label="What to show" hidden>
         <button type="button" data-view="all" aria-pressed="true">Whole document</button>
         <button type="button" data-view="changed" aria-pressed="false">Changed sections</button>
       </div>
     </section>
     {{/hasChanges}}
+    <div class="card doc-card rise" style="--i: 2">
     {{#sections}}
     <section class="doc-section {{sem}}" id="{{id}}"{{#change}} data-change="{{change}}"{{/change}} aria-labelledby="{{id}}-h">
       <h2 id="{{id}}-h">{{title}} <a class="anchor" href="#{{id}}" aria-label="Link to {{title}}">#</a></h2>
@@ -31,6 +32,7 @@
       {{#wasHtml}}<details class="was"><summary>Earlier wording</summary><div{{#verbatim}} data-verbatim{{/verbatim}}>{{{wasHtml}}}</div></details>{{/wasHtml}}
     </section>
     {{/sections}}
+    </div>
   </article>
 </div>
 {{>foot}}
