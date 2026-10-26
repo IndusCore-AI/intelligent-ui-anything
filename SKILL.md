@@ -4,7 +4,7 @@ description: Answers with a small interactive page instead of prose whenever the
 license: MIT
 compatibility: Needs Node.js 18 or later on the PATH. Works in Claude Code, Codex CLI, Cursor, Antigravity CLI and other agents that run skill scripts; on claude.ai it needs code execution. Makes no network requests.
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 ---
 
 # Intelligent UI Anything

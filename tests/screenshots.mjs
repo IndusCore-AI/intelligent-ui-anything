@@ -24,7 +24,7 @@ const render = (name) => {
 
 const browser = await chromium.launch();
 const shoot = async (name, { scheme, width = 1200, height = 860, act }) => {
-  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: scheme, deviceScaleFactor: 2 });
+  const ctx = await browser.newContext({ viewport: { width, height }, colorScheme: scheme, deviceScaleFactor: 2, reducedMotion: 'reduce' });
   const page = await ctx.newPage();
   await page.goto(render(name));
   if (act) await act(page);

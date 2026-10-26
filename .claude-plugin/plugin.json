@@ -1,7 +1,7 @@
 {
   "name": "intelligent-ui-anything",
   "displayName": "Intelligent UI Anything",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Turns what a session produced into the smallest interactive page that answers one question, opened where the user is, and returns the user's pick to the agent.",
   "author": {
     "name": "IndusCore",

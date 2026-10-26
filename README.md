@@ -25,6 +25,7 @@ Claude Code · Codex CLI · Cursor · Antigravity · claude.ai
 Agents answer in prose. When the answer is ten models with six attributes each, or twenty findings across three sessions, prose makes you scroll, compare in your head and then type your choice back. This skill gives the agent five locked page templates instead. The agent writes JSON, a script fills the template, checks it, and opens it where you are. You sort, filter and pick. Your pick comes back to the agent as one line, by a Copy button or straight into the session.
 
 - **Five shapes, nothing else.** Compare, choose, explain, track, inspect. A question that fits none gets prose.
+- **Looks like an answer, not a report.** Cards, the leaders at a glance, tappable rows and options, status icons, a floating pick dock, and motion that streams in. Light, dark and phone layouts are designed, not shrunk.
 - **The decision comes back.** Every pick shows the exact line the agent will get. Served pages send it with one click.
 - **Opens where you are.** An artifact in Claude Code, your browser in a terminal, a localhost URL over SSH, a path inside a sandbox.
 - **Honest by construction.** A page that states a number its data does not hold fails the check and never opens.

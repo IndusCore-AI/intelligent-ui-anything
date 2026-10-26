@@ -23,11 +23,13 @@ For several things with the same attributes. Optional bar chart for one measure;
 | `data` field | What it is |
 | --- | --- |
 | `rows` | list of objects, one per thing compared (required) |
-| `columns` | list of `{key, label, type, unit, better, max}` in display order; omit to use every key of the rows. The first column names each row |
+| `columns` | list of `{key, label, type, unit, better, best_label, max}` in display order; omit to use every key of the rows. The first column names each row |
 | `columns[].type` | `text`, `number`, `rating` (needs `max`), `tag` (a pill; a list makes several), `link` (`{text, href}` or a URL), `change` (signed finance change), or a meaning: `five-elements`, `severity`, `status`, `diff`. Omitted: inferred |
-| `columns[].better` | `higher` or `lower`: marks the best value as "highest" or "lowest" and sorts that way first |
+| `columns[].better` | `higher` or `lower`: the best value gets a green check pill, the column sorts that way first, and the column joins the leaders strip at the top |
+| `columns[].best_label` | the leaders-strip caption for that column, when "Highest GenEval" or "Lowest Weights" reads badly (for example `"Smallest download"`) |
+| `highlights` | `false` hides the leaders strip. It shows the best value of up to three `better` columns and who holds it; it needs three rows or more |
 | `chart` | `{value, label, title, unit, color}`: horizontal bars for the numeric column `value`. Bars are one neutral colour unless `color` names a column with a meaning, or a `five-elements` column exists |
-| `pick` | `true` or `{prompt, verb, header, note}`: each row gets a button; `prompt` is the line the agent gets, with `{key}` filled from the row (default `"Use {first column}"`) |
+| `pick` | `true` or `{prompt, verb, header, note}`: each row gets a radio and the whole row is tappable; `prompt` is the line the agent gets, with `{key}` filled from the row (default `"Use {first column}"`) |
 | `notes` | lines shown under the table (method, caveats) |
 
 ```json

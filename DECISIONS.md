@@ -44,6 +44,15 @@ Where this build differs from the brief, or settles something the brief left ope
 
 ## Design
 
+**0.2.0: the look of an answer in a chat, not a report.** Pulkit's bar on 2026-10-26 was ChatGPT's Intelligent UI. openai.com refuses automated browsers, and the press coverage carries no screenshots, so the visual language was taken from OpenAI's own Apps SDK UI (MIT, github.com/openai/apps-sdk-ui): neutral greys, hairline borders at 8 to 10 percent, soft shadows, 16 to 24 px card radii, pill buttons with a near-black primary, tinted status badges, system fonts in few sizes, 150 ms state changes. Its UI guidelines add the rules kept here: at most two actions per card, actions that start a conversation turn, brand colour only on the primary button. Three places differ on purpose:
+- Neutrals carry 0.005 chroma and the raised surface is 99.6 percent, not pure white: Hallmark's lint calls zero-chroma greys and pure white a reflex.
+- The decision dock is solid, not glass: the lint warns on a blur over a translucent fill, and the floor allows no warning.
+- Pills stay on controls and badges; dots and status icons are circles and bar tracks take small radii, per the lint's pill rule.
+
+Every shape was screenshotted at 1280 and 390 px in both themes after each change, and judged against that bar; the fixes it forced are in the 0.2.0 changelog (names wrapping, a badge that doubled row height, a table 60 px too wide, phone rows six lines tall, a dock that took three rows before anything was picked).
+
+**The trigger was the bigger gap.** On "lay out the options so I can choose one" the old description lost to prose, and a global "load the design skills" rule led the agent to hand-write HTML. The description now leads with the situation (an answer that makes the user compare, choose, read a long document, follow progress or review findings) and says to use the skill instead of hand-written HTML because its templates already pass a design check.
+
 **Colour is reserved for meaning.** Chrome is ink on paper; the accent is ink. Every hue on a page is a semantic token, so a colour always says something. Bars in a chart are one neutral colour unless the rows carry an identity (five elements) or the agent names a colour column: the first screenshot painted build times with CI status, which the dataviz rules forbid.
 
 **The five-element palette was computed, not picked.** A search over OKLCH candidates against the dataviz validator gave colour-blind separation ΔE 8.8 (light) and 8.6 (dark) over all pairs, normal-vision ΔE 17.4 and 15.3, and 3:1 contrast on every surface in both themes. Metal is iron grey on light paper and silver on dark, because white cannot show on white and gold collides with earth's ochre; it is under the chroma floor by design and named on every mark. Water is blue because black is the page's ink.
