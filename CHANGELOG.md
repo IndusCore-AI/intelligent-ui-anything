@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.1 (2026-10-26)
+
+Acceptance pass on a second machine, and the move to the IndusCore-AI organisation.
+
+- Repo, plugin manifest and README point at `IndusCore-AI/intelligent-ui-anything`.
+- README rewritten: hero image of a real request and its page (`docs/hero.png`, source in `docs/src/`), quick start, example gallery, the five shapes, how it works, install per agent.
+- A served page leads with Send to the agent; Copy stays beside it as the fallback.
+- Pick buttons on rows and option cards give the same instant press feedback as every other button, with the reduced-motion fallback.
+- `render --help` printed a line of its own source; it now prints the usage comment only, and lists `--serve`.
+- `SKILL.md` describes the two founding cases in general words instead of by founder name.
+- Verified on a second Mac (Claude Code 2.1.310, Node 26): a plain `claude -p` request with no skill named triggered the skill and opened a checked page in 47 s; `render --serve --wait` returned `decision: Use model Z-Image-Turbo` after a real click on Send in Chromium; the Artifact target was published to claude.ai.
+
 ## 0.1.0 (2026-10-25)
 
 First version, private, for testing.

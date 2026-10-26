@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Dev only: source of docs/hero.png. The right half is a real render of examples/comfyui-models.json
+     with one row picked; the left half is the request and the lines scripts/render prints. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Intelligent UI Anything</title>
+<style>
+  :root {
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --color-paper: oklch(98.6% 0.003 250);
+    --color-ink: oklch(23% 0.012 255);
+    --color-ink-2: oklch(40% 0.012 255);
+    --color-muted: oklch(50% 0.012 255);
+    --color-rule: oklch(90% 0.006 255);
+    --color-term: oklch(19% 0.008 255);
+    --color-term-ink: oklch(93% 0.004 255);
+    --color-term-dim: oklch(70% 0.01 255);
+    --color-pass: oklch(78% 0.13 150);
+    --color-shadow: oklch(23% 0.012 255 / 0.14);
+  }
+  html, body { margin: 0; overflow-x: clip; }
+  body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); }
+  .hero { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 40px; align-items: center; padding: 48px 56px; height: 640px; box-sizing: border-box; }
+  h1 { font-size: 40px; line-height: 1.08; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .lede { font-size: 18px; line-height: 1.45; color: var(--color-ink-2); margin: 0 0 28px; max-width: 30ch; }
+  .term { background: var(--color-term); color: var(--color-term-ink); border-radius: 14px; padding: 22px 24px; font: 14px/1.6 var(--font-mono); }
+  .term p { margin: 0; white-space: pre-wrap; overflow-wrap: break-word; }
+  .you { color: var(--color-term-ink); margin-bottom: 14px !important; }
+  .you::before { content: "> "; color: var(--color-term-dim); }
+  .dim { color: var(--color-term-dim); }
+  .ok { color: var(--color-pass); }
+  .decision { margin-top: 14px !important; font-weight: 600; }
+  .shot { border-radius: 14px; overflow: hidden; border: 1px solid var(--color-rule); box-shadow: 0 24px 48px -24px var(--color-shadow); }
+  .shot img { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<main class="hero">
+  <div>
+    <h1>Ask for a page.<br>Pick on it.<br>The agent carries on.</h1>
+    <p class="lede">One skill turns what your agent just found into a small page you can sort, read or pick from.</p>
+    <div class="term" aria-label="A request and what the renderer prints">
+      <p class="you">show these checkpoints as a table I can sort and let me pick one</p>
+      <p class="dim">page: /tmp/intelligent-ui-anything/comfyui-models.html</p>
+      <p class="dim">shape: compare, 10 rows, 53 KB</p>
+      <p>check: <span class="ok">pass</span> <span class="dim">(floor 12/12, lint 0 FAIL)</span></p>
+      <p class="dim">opened: yes, with open</p>
+      <p class="decision">decision: Use model FLUX.2 [klein] 4B</p>
+    </div>
+  </div>
+  <div class="shot"><img src="hero-page.png" alt="The ComfyUI comparison page with FLUX.2 [klein] 4B picked"></div>
+</main>
+</body>
+</html>

@@ -4,7 +4,7 @@ description: Turns what a session produced into the smallest interactive page th
 license: MIT
 compatibility: Needs Node.js 18 or later on the PATH. Works in Claude Code, Codex CLI, Cursor, Antigravity CLI and other agents that run skill scripts; on claude.ai it needs code execution. Makes no network requests.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Intelligent UI Anything
@@ -34,7 +34,7 @@ Answer in prose instead when the answer fits in a few lines, when the user asked
 | How far along is it? | `track` | checklist with progress that refreshes while you work |
 | What happened, what is risky, what is open? | `inspect` | filterable timeline by lane, severity and session; diffs; decisions |
 
-Michael's post-session review is `inspect` with the lanes `changed`, `risky`, `undecided`; give undecided items `options` so the user decides on the page. Pulkit's ComfyUI model list is `compare` with `pick`.
+A review after one or more sessions (what changed, what is risky, what is undecided) is `inspect` with the lanes `changed`, `risky`, `undecided`; give undecided items `options` so the user decides on the page. A list of models, packages or vendors to pick from is `compare` with `pick`.
 
 ## Step 2: write the JSON
 

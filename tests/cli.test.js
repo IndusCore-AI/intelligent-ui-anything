@@ -28,6 +28,13 @@ test('render reads JSON from stdin and targets an artifact', () => {
   assert.match(r.stdout, /^next: publish this file with your Artifact tool/m);
 });
 
+test('render --help prints the usage comment and no code', () => {
+  const r = run(['--help']);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /--serve/);
+  assert.doesNotMatch(r.stdout, /require\(|^const /m);
+});
+
 test('render refuses bad input with exit 2 and a page that fails the floor with exit 3', () => {
   const bad = run(['-', '--target', 'path'], JSON.stringify({ shape: 'pie', subject: 'x', data: {} }));
   assert.equal(bad.status, 2);

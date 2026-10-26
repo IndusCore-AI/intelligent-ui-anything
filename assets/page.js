@@ -160,7 +160,11 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.prompt).then(ok, fail); else fail();
     });
     if (sendBtn && served) {
+      // Served, Send is the one-step path, so it leads; Copy stays as the fallback.
       reveal(sendBtn);
+      sendBtn.classList.add('btn-primary');
+      copyBtn.classList.remove('btn-primary');
+      decide.querySelector('.decide-actions').insertBefore(sendBtn, copyBtn);
       sendBtn.addEventListener('click', function () {
         var d = current();
         if (!d) return;

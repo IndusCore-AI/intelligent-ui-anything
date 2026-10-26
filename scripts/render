@@ -4,7 +4,7 @@
 // served or handed to the agent's Artifact tool. Node built-ins only; no network.
 //
 //   node scripts/render <input.json | -> [--out FILE] [--target auto|browser|serve|artifact|path]
-//                       [--wait] [--timeout SEC] [--open | --no-open] [--no-check]
+//                       [--serve] [--wait] [--timeout SEC] [--open | --no-open] [--no-check]
 //
 // stdout is line-oriented ("page: ...", "opened: ...", "url: ...", "decision: ...") so an agent can read it.
 // Exit codes: 0 ok, 2 bad input, 3 the page failed the floor check (written, not opened), 4 --wait timed out.
@@ -87,7 +87,8 @@ async function main(argv) {
   let opts;
   try { opts = parseArgs(argv); } catch (e) { console.error(`render: ${e.message}`); return 2; }
   if (opts.help || !opts.input) {
-    console.log(readFileSync(__filename, 'utf8').split('\n').slice(2, 11).map((l) => l.replace(/^\/\/ ?/, '')).join('\n'));
+    const lines = readFileSync(__filename, 'utf8').split('\n').slice(2);
+    console.log(lines.slice(0, lines.findIndex((l) => !l.startsWith('//'))).map((l) => l.replace(/^\/\/ ?/, '')).join('\n'));
     return opts.help ? 0 : 2;
   }
   let input;

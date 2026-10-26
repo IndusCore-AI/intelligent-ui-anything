@@ -209,7 +209,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6)
 .btn::after, .seg button::after, .chip-btn::after, .choice::after { content: ""; position: absolute; inset: -4px; }
 .btn:hover, .seg button:hover, .chip-btn:hover { background: var(--color-well); }
 .btn-primary { background: var(--color-accent); }
-.btn:active, .seg button:active, .chip-btn:active { transform: scale(0.97); }
+.btn:active, .seg button:active, .chip-btn:active, .choice:active { transform: scale(0.97); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; color: var(--color-muted); cursor: not-allowed; transform: none; }
 .btn[aria-busy="true"] { cursor: progress; }
 .btn-primary { background: var(--color-accent); color: var(--color-accent-ink); border-color: var(--color-accent); }
@@ -237,7 +237,7 @@ input[type="search"], input[type="text"], select {
 }
 input:disabled, select:disabled { opacity: 0.55; cursor: not-allowed; }
 input[aria-invalid="true"] { border-color: var(--color-red); }
-.choice { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); padding-inline: var(--space-3); border: 1px solid var(--color-edge); border-radius: var(--radius-s); background: transparent; cursor: pointer; white-space: nowrap; font-size: var(--text-small); transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }
+.choice { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); padding-inline: var(--space-3); border: 1px solid var(--color-edge); border-radius: var(--radius-s); background: transparent; cursor: pointer; white-space: nowrap; font-size: var(--text-small); transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out), transform 120ms var(--ease-out); }
 .choice:hover { background: var(--color-well); }
 .choice:has(input:checked) { border-color: var(--color-ink); background: var(--color-well); font-weight: 600; }
 .choice:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 2px; }
@@ -432,7 +432,7 @@ th[aria-sort="descending"] .dir::before { content: "\2193"; }
 
 @media (prefers-reduced-motion: reduce) {
   .btn, .seg button, .chip-btn, .choice { transition: background-color 120ms linear, border-color 120ms linear; }
-  .btn:active, .seg button:active, .chip-btn:active { transform: none; }
+  .btn:active, .seg button:active, .chip-btn:active, .choice:active { transform: none; }
 }
 @media (prefers-contrast: more) {
   :root { --color-rule: var(--color-edge); }

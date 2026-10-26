@@ -65,9 +65,18 @@ Where this build differs from the brief, or settles something the brief left ope
 - **Triggering.** The skill-creator's `run_eval.py` scored 1 of 10 positives, which was wrong: Claude Code 2.1.310 streams a partial assistant message with empty tool input first, and parallel runs share one commands folder. A checker with the same rule on complete messages gave 16/20 for the first description (6 of 10 triggers, no false triggers) and 17/20 for the final one (7 of 10, no false triggers). The three misses ("lay them out so I can choose", "make it navigable", "keep a checklist page updated") are prompts Claude answered or started directly. Capped at two rounds; the 20 queries are in `tests/trigger-evals.json`.
 - **The description has no colons.** `skills-ref` rejected the first one: a colon followed by a space is a YAML mapping inside a plain scalar.
 
+## Acceptance pass, 2026-10-26
+
+Run on Pulkit's Mac (Claude Code 2.1.310, Node 26.8.2), with the skill linked into `~/.claude/skills/`.
+
+- **Trigger without naming the skill.** `claude -p` with ten checkpoints and "show them to me as a table I can sort and let me pick one" loaded the skill as its first tool call, wrote the JSON, passed the check and opened the page in 47 s. The unattended guard worked: `waiting: skipped: this run is unattended`.
+- **Send in a real browser.** `render --serve --wait`, then Chromium (Playwright) clicked a row and Send: the command printed `decision: Use model Z-Image-Turbo` and exited 0.
+- **A served page leads with Send.** When the page can reach the agent, Send is the one-step path, so it takes the primary style and the first position; Copy stays as the fallback that always works.
+- **Artifact target.** The ComfyUI example was rendered with `--target artifact` and published from a session that has the Artifact tool. Whether Copy is allowed inside the viewer is for a person to click; the page selects the line when the clipboard is refused.
+
 ## Left open
 
 - `allowed-tools` is not set: it is experimental in the spec and its entries would contain spaces, so permission prompts stay with the user.
 - Windows, WSL, Cursor and Antigravity paths are written but never run.
 - Whether the Copy button works inside the claude.ai viewer was not clicked, only matched to the documented contract.
-- The repo URLs in the plugin manifest point at `gaurpulkit`; they change when the repo moves to an organisation.
+- Settled 2026-10-26: the repo moved to the `IndusCore-AI` organisation, and the manifest and README URLs now point there.
