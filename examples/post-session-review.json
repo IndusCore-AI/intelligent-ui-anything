@@ -4,7 +4,7 @@
   "subject": "Three sessions, one review",
   "question": "What changed, what is risky, and which open items need your call?",
   "summary": "Research, build and host-test sessions from today. Pick one option per open item and press Copy or Send.",
-  "source": "examples/sessions/1-research.log, 2-build.log and 3-hosts.log, three real session logs from building this skill on 2026-10-25. An agent wrote this JSON from them.",
+  "source": "examples/sessions/1-research.log, 2-build.log and 3-hosts.log, three session logs from building this skill on 2026-10-25, trimmed of internal planning notes. An agent wrote this JSON from them.",
   "data": {
     "lanes": [
       "changed",
@@ -18,21 +18,16 @@
         "source": "research",
         "at": "10:05-11:22",
         "title": "Call notes cleaned and research written",
-        "detail": "Wrote 00-cleaned-notes.md, 01-analysis.md, research-1..4 and prompts/prompt-1..4.",
+        "detail": "Wrote 00-cleaned-notes.md, 01-analysis.md, research-1..4 and the build brief.",
         "files": [
-          "~/Desktop/research/14-skills-launch/"
+          "research/"
         ]
       },
       {
         "lane": "changed",
         "source": "research",
-        "title": "teamctx entries recorded",
-        "detail": "k:1091 (naming evidence: \"Intelligent UI\" is OpenAI's feature name since 2026-10-07), k:1093, k:1094, k:1096 (launch plan)."
-      },
-      {
-        "lane": "changed",
-        "source": "research",
-        "title": "Private plan artifact published"
+        "title": "Decided: five fixed shapes, the pick returns to the agent",
+        "detail": "Zero dependencies; a question that fits no shape gets prose."
       },
       {
         "lane": "changed",
@@ -94,13 +89,6 @@
       },
       {
         "lane": "risky",
-        "source": "research",
-        "severity": "high",
-        "title": "Name may raise a trademark question with OpenAI",
-        "detail": "\"Intelligent UI\" is OpenAI's feature name since 2026-10-07 (teamctx k:1091). Unverified. Touches the org, the repo name and the launch."
-      },
-      {
-        "lane": "risky",
         "source": "build",
         "severity": "medium",
         "title": "Copy button in a claude.ai artifact may be blocked",
@@ -129,53 +117,6 @@
       },
       {
         "lane": "undecided",
-        "source": "research",
-        "title": "Which GitHub org publishes the skills?",
-        "detail": "Also gates the plugin icon decision below.",
-        "options": [
-          {
-            "label": "IndusCore",
-            "prompt": "Publish under the IndusCore org"
-          },
-          {
-            "label": "IndusCore-AI",
-            "prompt": "Publish under the IndusCore-AI org"
-          }
-        ]
-      },
-      {
-        "lane": "undecided",
-        "source": "research",
-        "title": "Launch date",
-        "detail": "No date is set in the logs. The joint test is 2026-10-26.",
-        "options": [
-          {
-            "label": "Set it after the joint test",
-            "prompt": "Set the launch date after the 2026-10-26 joint test"
-          },
-          {
-            "label": "Wait for the trademark check",
-            "prompt": "Hold the launch date until the trademark question is checked"
-          }
-        ]
-      },
-      {
-        "lane": "undecided",
-        "source": "research",
-        "title": "Release cadence",
-        "options": [
-          {
-            "label": "One release a week",
-            "prompt": "Release one skill a week"
-          },
-          {
-            "label": "One release a day",
-            "prompt": "Release one skill a day"
-          }
-        ]
-      },
-      {
-        "lane": "undecided",
         "source": "build",
         "title": "How much to test the skill description?",
         "detail": "The full skill-creator loop is about 300 `claude -p` runs; the other option is a two-round check.",
@@ -201,8 +142,8 @@
             "prompt": "Add a plugin icon now"
           },
           {
-            "label": "After the org exists",
-            "prompt": "Add the plugin icon after the org is created"
+            "label": "Add it later",
+            "prompt": "Add the plugin icon later"
           }
         ]
       }

@@ -42,9 +42,8 @@ await shoot('five-elements', { scheme: 'dark', height: 900 });
 await shoot('post-session-review', {
   scheme: 'light', height: 1000,
   act: async (p) => {
-    await p.click('label.choice:has-text("IndusCore-AI")');
-    await p.click('label.choice:has-text("Set it after the joint test")');
-    await p.click('label.choice:has-text("One release a week")');
+    await p.click('label.choice:has-text("Two-round check")');
+    await p.click('label.choice:has-text("Add it now")');
     await p.locator('#lane-undecided').scrollIntoViewIfNeeded();
     await p.evaluate(() => document.querySelector('#lane-undecided').scrollIntoView({ block: 'start' }));
   },

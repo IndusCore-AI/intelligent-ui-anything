@@ -1,4 +1,4 @@
-SESSION build (Claude Code, 2026-10-25 15:30-17:00 EDT, repo gaurpulkit/intelligent-ui-anything)
+SESSION build (Claude Code, 2026-10-25 15:30-17:00 EDT)
 $ git log --oneline
 7702a13 References, tests, CI, plugin manifests, and two sourced examples
 78cba8b Core: five shape templates, one theme, render, check and serve
@@ -10,4 +10,4 @@ $ git log --oneline
 - risk: Cursor and Antigravity environment markers unverified (neither installed)
 - risk: the copy button inside a claude.ai artifact may be blocked by the viewer's sandbox (not yet tested)
 - open: run the full skill-creator description loop (about 300 claude -p runs) or keep a two-round check?
-- open: add a plugin icon now or after the org is created?
+- open: add a plugin icon now or later?

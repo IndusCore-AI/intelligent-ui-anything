@@ -1,8 +1,5 @@
 SESSION research (Claude Code, 2026-10-25 10:05-11:22 EDT)
-> polish the call notes and research the two skill ideas
-- wrote ~/Desktop/research/14-skills-launch/00-cleaned-notes.md, 01-analysis.md, research-1..4, prompts/prompt-1..4
-- recorded teamctx k:1091 (naming evidence: "Intelligent UI" is OpenAI's feature name since 2026-10-07), k:1093, k:1094, k:1096 (launch plan)
-- published a private plan artifact
+> polish the call notes and research the skill idea
+- wrote research/00-cleaned-notes.md, 01-analysis.md, research-1..4 and the build brief
+- decided: five fixed shapes; the user's pick returns to the agent; zero dependencies
 - decided: build Intelligent UI Anything first, Connect Anything second; test together on 2026-10-26
-- open: which GitHub org publishes the skills (IndusCore, else IndusCore-AI); launch date; one release a week vs one a day
-- risk noted: "Intelligent UI" may raise a trademark question with OpenAI (unverified)
